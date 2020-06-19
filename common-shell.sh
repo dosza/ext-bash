@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------------------------#
 #Universidade federal de Mato Grosso (mater-alma)
 #Course: Science Computer
-#version: 0.0.1
-#Date: 02/29/2020
+#version: 0.1.0
+#Date: 19/06/2020
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
 
