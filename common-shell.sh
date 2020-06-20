@@ -2,7 +2,7 @@
 #-------------------------------------------------------------------------------------------------#
 #Universidade federal de Mato Grosso (mater-alma)
 #Course: Science Computer
-#version: 0.1.0
+#version: 0.1.0	
 #Date: 19/06/2020
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
@@ -125,7 +125,7 @@ replaceLine(){
 	fi
 	local str_to_find="$2"
 	local str_to_replace="$3"
-	sed -i "s/${str_to_find}|${str_to_replace}/g" "$1"	
+	sed -i "s|${str_to_find}|${str_to_replace}|g" "$1"	
 }
 
 

@@ -20,7 +20,6 @@ Functions
 ---
 Note: a shell function is declared by Name(){COMMANDS;} or function Name{ COMMANDS;}
 Each argument is referenced by \$1..\$n.
-See the [example 1](#sample)
 
 The list below includes the parameters within the parentheses for teaching purposes.
 + replaceLine(file,string_to_find,string_to_replace)
@@ -30,8 +29,13 @@ The list below includes the parameters within the parentheses for teaching purpo
 
 ### sample:
 ```bash
- # a real function declaration
- name(){
- 	echo "your name is $1"
-}
+#!/bin/bash 
+# without common-shell-lib
+sed  -i 's/stretch/buster/g' /etc/fstab
+
+#with common shell library
+#!/bin/bash
+source ./common-shell-lib.sh
+replaceLine /etc/apt/sources.list  "stretch" "buster" 
+
   ```	
