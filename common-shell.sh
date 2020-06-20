@@ -99,13 +99,19 @@ splitStr(){
 	fi
 }
 
+# Gera uma string com escape
+# entrada: $1 uma string 
 GenerateScapesStr(){
 	if [ "$1" = "" ] ; then
-		echo "There is no string to scape!"
-		return 1
-	else
-		echo "$1" | sed 's|\/|\\\/|g'  | sed "s|\.|\\\.|g" | sed "s|\-|\\\-|g" | sed "s|\"|\\\"|g" | sed "s/'/\\\'/g"
+		echo "There is no string to scape!"; return 1
 	fi
+
+	echo "$1" | grep '\\' > /dev/null
+	if [  $? = 0 ]; then  # se a string já está com com escape, retorne a string 
+		echo "$1"; return 
+	fi
+
+	echo "$1" | sed 's|\/|\\\/|g'  | sed "s|\.|\\\.|g" | sed "s|\-|\\\-|g" | sed "s|\"|\\\"|g" | sed "s/'/\\\'/g"
 }
 
 
