@@ -9,7 +9,7 @@ A  Shell Script Library that simplifies  that provides several functions that si
 
 Motivation 
 ---
-[UFMT-LAB-Tools](https://github.com/DanielOliveiraSouza/ufmt-cua-lab-tools),[PostInstall](https://github.com/DanielOliveiraSouza/Linux-PostInstall) and [LAMW Manager](https://github.com/DanielOliveiraSouza/LAMW4Linux-installer) are command line tools that automate the installation of many software. 
+[UFMT-LAB-Tools](https://github.com/DanielOliveiraSouza/ufmt-cua-lab-tools),[PostInstall](https://github.com/DanielOliveiraSouza/Linux-PostInstall) and [LAMW Manager](https://github.com/DanielOliveiraSouza/LAMW4Linux-installer) are command line tools that automate the installation of many software.
 From the development of these tools, it is observed that there is a set of routines that can be standardized.
 This level of automation usually requires the execution of commands with poorly readable syntax. 
 The idea is to provide a level of abstraction (generic) that the *user* can use in his context.

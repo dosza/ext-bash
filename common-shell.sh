@@ -39,6 +39,14 @@ changeDirectory(){
 	fi 
 }
 
+#check f variable exists
+isVariabelDeclared(){
+	if [ $1 = '' ]; then return 1; fi
+
+	declare -p "$1" &> /dev/null
+	return $?
+}
+
 # Verify se user is sudo member (return  1 false, 0 to true 	yttttt)
 isUsersSudo(){
 	local ret=0
@@ -147,7 +155,7 @@ Split (){
         echo "$1" | grep "$2"  > /dev/null
         if [ $? = 0 ]; then 
             local new_str=${str//$delimiter/ };
-            local out=($(echo $new_str))
+            out=($(echo $new_str))
             return 0
         fi   
     else
@@ -248,9 +256,9 @@ Wget(){
 		exit 1
 	fi
 	local wget_opts="-c --timeout=300"
-	wget $wget_opts $1
+	wget $wget_opts $*
 	if [ $? != 0 ]; then
-		wget $wget_opts $1
+		wget $wget_opts $*
 		if [ $? != 0 ]; then 
 			echo "possible network instability! Try later!"
 			exit 1
@@ -302,4 +310,17 @@ AptInstall(){
 	apt-get autoclean
 }
 
-
+#Retorna verdadeiro se o pacote $1 está instalado
+isDebPackInstalled(){
+	if [ "$1" = "" ]; then
+		echo "missing package name";
+		return 0;
+	fi
+	exec 2> /dev/null dpkg -s "$1" | grep 'Status: install' > /dev/null #exec 2 redireciona a saída do stderror para /dev/null
+	
+	if [ $?  = 0 ]; then
+		return 1
+	else
+		return 0;
+	fi
+}
