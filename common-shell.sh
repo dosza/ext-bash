@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------------------------#
 #Universidade federal de Mato Grosso (mater-alma)
 #Course: Science Computer
-#version: 0.1.0	
-#Date: 19/06/2020
+#version: 0.2.0	
+#Date: 12/11/2020
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
 
@@ -148,19 +148,20 @@ replaceLine(){
 
 
 Split (){ 
-    if [ $# = 3 ] ; then
-        local str=$1;
-        local delimiter=$2;
-        newPtr out=$3
-        echo "$1" | grep "$2"  > /dev/null
-        if [ $? = 0 ]; then 
-            local new_str=${str//$delimiter/ };
-            out=($(echo $new_str))
-            return 0
-        fi   
-    else
-        return 1
-    fi
+	if [ $#  -lt 3 ] || [ "$1" = "" ] || [ "$2" = "" ] ||  [ "$3" = "" ] ; then 
+		return 1
+	fi
+
+	isVariabelDeclared $3
+	if [ $? != 0 ]; then
+		return 1
+	fi
+
+
+	local str="$1"
+	local delimiter="$2"
+	newPtr array_splitted_ref=$3
+	readarray -d "$delimiter" -t array_splitted_ref <<< "$str"
 }
 
 #write override writefile
