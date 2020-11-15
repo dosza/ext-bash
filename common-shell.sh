@@ -7,6 +7,11 @@
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
 
+
+#-------------------versions-------------------------------
+#v0.1.0 add support to write a array to file, get a file (with validation)
+#v0.2.0 add advanced support manipulation of string 
+
 #GLOBAL VARIABLES
 #----ColorTerm
 export VERDE=$'\e[1;32m'
@@ -26,6 +31,197 @@ APT_LOCKS=(
 shopt  -s expand_aliases
 alias newPtr='declare -n'
 
+#check f variable exists
+
+isVariabelDeclared(){
+	if [ $1 = '' ]; then return 1; fi
+
+	declare -p "$1" &> /dev/null
+	return $?
+}
+
+#get a substring  with of str with offset and length, is a funtion to expansion ${str:$offset:$length}
+# $1 is a string, note:
+# $2 is a offset
+# $3 is a length of string
+# returns to stdout of substring
+strGetSubstring(){
+    if [ $# -lt 3 ] || ( [ "$1" = "" ] || [ $2 -lt 0 ] || [ $3 -lt 1 ]  ); then
+        echo ""
+        return 1
+    fi
+
+    echo "${1:$2:$3}"
+}
+
+
+
+# get a substring  with of str with offset and length, is a funtion to expansion ${str:$offset:$length}
+# $1 is a string, note:
+# $2 is a offset
+# $3 is a length of string
+# returns to stdout of substring
+#note is small implementation 
+str_substring1(){
+    echo "${1:$2:$3}"
+}
+
+
+#get a lenght of string, is function to expansion ${#str}
+# $1 string of input
+#return to ouput a length of string
+strLen(){
+    echo "${#1}"
+}
+strGetCurrentChar(){
+    echo "${1:$2:1}"
+}
+
+#remove the shortest match from start string, is a function to expansion ${str#$substr}
+# $1 is a string input
+# $2 is substring to delete
+# returns to output a string with $2 removed.
+
+strRemoveShortStart(){
+    local str="$1"
+    local del_substr="$2"
+    echo ${str#$del_substr}
+}
+
+#remove longest match from start string, is  a function to expansion ${str##$substr}
+# $1 is a string input
+# $2 is substring to delete
+# returns to output a string with $2 removed.
+
+strRemoveLongStart(){
+    local str="$1"
+    local del_substr="$2"
+    echo ${str##$del_substr}
+}
+
+#remove the shortest match from end string, is a function to expansion ${str%$substr}
+# $1 is a string input
+# $2 is substring to delete
+# returns to output a string with $2 removed.
+
+strRemoveShortEnd(){
+    local str="$1"
+    local del_substr="$2"
+    echo ${str%$del_substr}
+}
+
+
+#remove the longest match from end string, is a function to expansion ${str%%$substr}
+# $1 is a string input
+# $2 is substring to delete
+# returns to output a string with $2 removed.
+
+
+strRemoveLongEnd(){
+    local str="$1"
+    local del_substr="$2"
+    echo ${str%%$del_substr}
+}
+
+#Replace the first ocorrence of substring, is a function to expansion ${str/$find/$replace}
+# $1 is a string input
+# $2 is substring to find
+# $3 is substring to replace
+# returns to ouput a string with $2 replaced by $3
+
+strReplace(){
+	local str="$1"
+	local find="$2"
+	local replace="$3"
+	echo ${str/$find/$replace}
+}
+
+#Replace all ocorrences of substring, is a function to expansion ${str//$find/$replace}
+# $1 is a string input
+# $2 is substring to find
+# $3 is substring to replace
+# returns to ouput a string with $2 replaced by $3
+
+strReplaceAll(){
+	local str="$1"
+	local find="$2"
+	local replace="$3"
+	echo ${str/$find/$replace}
+}
+strRemoveAll(){
+    local str="$1"
+    local del_substr="$2"
+    echo ${str//$del_substr/}
+}
+
+
+# this function split a string using a builtin command
+# $1 is string
+# $2 is a delimiter
+# $3 is a array variable name 
+# returns: replace content of array passed by reference (name) with string splited
+
+Split (){ 
+	if [ $#  -lt 3 ] || [ "$1" = "" ] || [ "$2" = "" ] ||  [ "$3" = "" ] ; then 
+		return 1
+	fi
+
+	isVariabelDeclared $3
+	if [ $? != 0 ]; then
+		return 1
+	fi
+
+
+	local str="$1"
+	local delimiter="$2"
+	newPtr array_splitted_ref=$3
+	readarray -d "$delimiter" -t array_splitted_ref <<< "$str"
+}
+
+
+
+# Split a string input in array using a delimeter
+# $1 is a string input
+# $2 is a string delimiter
+# $3 is  array variable name, note: array must be declared!
+# result: override array content with string splitted
+
+splitStr(){
+    if [ $# -lt 3 ] || ( [ "$1" = "" ] || [ "$2" = "" ] || [ "$3" = "" ]  ); then
+        echo "missing args"
+        return 1
+    fi
+
+    local str="$1"
+    local delimiter="$2"
+    local index_start_substr=0
+    declare -n array_Splitted_ref="$3"
+    array_Splitted_ref=()
+
+    echo "$1" | grep "$2" > /dev/null
+
+    if [ $? = 0 ] ; then
+
+        for ((i=0 ;i  <= $(strLen "$str") ;i++)); do
+
+            local current_token="$(strGetCurrentChar "$str" $i)"
+
+            if [ "$current_token" = "$delimiter" ] || [ $i = $length_str ]; then
+                local length_substring=$((i-index_start_substr))
+                local substring="$(str_substring1 "$str" $index_start_substr $length_substring)"
+                array_Splitted_ref[${#array_Splitted_ref[*]}]="$substring"
+                index_start_substr=$((i+1))
+            fi      
+        done
+
+    else
+        array_Splitted_ref[0]="$1"
+    fi
+}
+
+
+
+
 
 #cd not a native command, is a systemcall used to exec, read more in exec man 
 changeDirectory(){
@@ -39,13 +235,6 @@ changeDirectory(){
 	fi 
 }
 
-#check f variable exists
-isVariabelDeclared(){
-	if [ $1 = '' ]; then return 1; fi
-
-	declare -p "$1" &> /dev/null
-	return $?
-}
 
 # Verify se user is sudo member (return  1 false, 0 to true 	yttttt)
 isUsersSudo(){
@@ -82,30 +271,7 @@ searchLineinFile(){
 	fi
 	return $flag # return value 
 }
-#args $1 is str
-#args $2 is delimeter token 
-#call this function output=($(SplitStr $str $delimiter))
-splitStr(){
-	local str=""
-	local token=""
-	local str_spl=()
-	if [ "$1" != "" ] && [ "$2" != "" ] ; then 
-		local str="$1"
-		local delimeter=$2
-		case "$delimeter" in 
-			"/")
-			str_spl=(${str//\// })
-			echo "${str_spl[@]}"
-			;;
-			*)
-				#if [ $(echo $str | grep [a-zA-Z0-9;]) = 0 ] ; then  # if str  regex alphanumeric
-					str_spl=(${str//$delimeter/ })
-					echo "${str_spl[@]}"
-				#fi
-			;;
-		esac
-	fi
-}
+
 
 # Gera uma string com escape
 # entrada: $1 uma string 
@@ -143,26 +309,6 @@ replaceLine(){
 }
 
 
-# this function split string and add a array
-#his array must be passed by reference
-
-
-Split (){ 
-	if [ $#  -lt 3 ] || [ "$1" = "" ] || [ "$2" = "" ] ||  [ "$3" = "" ] ; then 
-		return 1
-	fi
-
-	isVariabelDeclared $3
-	if [ $? != 0 ]; then
-		return 1
-	fi
-
-
-	local str="$1"
-	local delimiter="$2"
-	newPtr array_splitted_ref=$3
-	readarray -d "$delimiter" -t array_splitted_ref <<< "$str"
-}
 
 #write override writefile
 #$1 filename
