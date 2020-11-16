@@ -29,11 +29,11 @@ The list below includes the parameters within the parentheses for teaching purpo
 
 New: String manipulation functions
 ---
-strLen(str) //returns to output of length of string, a equivalent C strlen()
-strGetSubstring(str,offset,length) // returns to output a str delimeted of offset and lenght
-strGetCurrentChar(str,index) //returns to output a char delimited by index, a equivalent C str[index];
-Split(str,delimiter,ref_array) // split (using a builtin command) a string and store in ref_array ( ref_array is a reference to array )
-splitStr(str,delimiter,ref_array) split a string and store in ref_array
++ strLen(str) //returns to output of length of string, a equivalent C strlen()
++ strGetSubstring(str,offset,length) // returns to output a str delimeted of offset and lenght
++ strGetCurrentChar(str,index) //returns to output a char delimited by index, a equivalent C str[index];
++ Split(str,delimiter,ref_array) // split (using a builtin command) a string and store in ref_array ( ref_array is a reference to array )
++ splitStr(str,delimiter,ref_array) split a string and store in ref_array
 
 
 ### sample:
@@ -48,7 +48,11 @@ source ./common-shell-lib.sh
 replaceLine /etc/apt/sources.list  "stretch" "buster" 
 
   ```	
-
+### sample: A length string
+```bash
+str="0000-000-000"
+strLen "$str" #write 12 in output
+```
 
 ### sample: Splitting a string 
 
