@@ -146,7 +146,7 @@ strReplaceAll(){
 	local str="$1"
 	local find="$2"
 	local replace="$3"
-	echo ${str/$find/$replace}
+	echo ${str//$find/$replace}
 }
 strRemoveAll(){
     local str="$1"
@@ -205,8 +205,8 @@ splitStr(){
         for ((i=0 ;i  <= $(strLen "$str") ;i++)); do
 
             local current_token="$(strGetCurrentChar "$str" $i)"
-
-            if [ "$current_token" = "$delimiter" ] || [ $i = $length_str ]; then
+            
+            if [ "$current_token" = "$delimiter" ] || [ $i = $(strLen "$str") ]; then
                 local length_substring=$((i-index_start_substr))
                 local substring="$(str_substring1 "$str" $index_start_substr $length_substring)"
                 array_Splitted_ref[${#array_Splitted_ref[*]}]="$substring"
