@@ -20,7 +20,15 @@ testStrLen (){
 
 testStrGetSubstring(){
 	local str="is Daniel"
+	local aux=""
 	assertEquals "$(strGetSubstring "$str" 3 7)" "Daniel"
+
+	str="The Crown Series IV"
+	aux="$( strGetSubstring "$str" 10 )"
+	assertEquals  "$aux" "Series IV"
+
+	str="value to"
+	assertTrue   "["$(strGetSubstring "$str")" -eq  "" ]" #obter substring sem passar o parametro $offset
 }
 
 testStrGetCurrentChar(){

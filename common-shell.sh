@@ -46,15 +46,24 @@ isVariabelDeclared(){
 # $3 is a length of string
 # returns to stdout of substring
 strGetSubstring(){
-    if [ $# -lt 3 ] || ( [ "$1" = "" ] || [ $2 -lt 0 ] || [ $3 -lt 1 ]  ); then
-        echo ""
+    if [ ${#} -lt 2 ] || ( [ "$1" = "" ] || [ ${2} -lt 0 ] ||  [ ! -z "$3" ] && [ $3 -lt  1 ]  ); then
+
+    	echo  -e "${VERMELHO}Wrong use function${NORMAL}\n${NEGRITO}Usage:\n\tstrSubstring \"\$str\" \$offset\n\tstrSubstring \"\$str\" \$offset \$length\n${NORMAL} " >&2
+    	echo ""
         return 1
     fi
 
-    echo "${1:$2:$3}"
+
+  	case $# in 
+
+  		2)
+			echo "${1:$2}"
+		;;
+		3)
+			echo "${1:$2:$3}"
+		;;
+	esac
 }
-
-
 
 # get a substring  with of str with offset and length, is a funtion to expansion ${str:$offset:$length}
 # $1 is a string, note:
