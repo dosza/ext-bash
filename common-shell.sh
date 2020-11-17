@@ -192,6 +192,12 @@ splitStr(){
         return 1
     fi
 
+    isVariabelDeclared $3
+	if [ $? != 0 ]; then
+		return 1
+	fi
+		
+
     local str="$1"
     local delimiter="$2"
     local index_start_substr=0
@@ -205,7 +211,7 @@ splitStr(){
         for ((i=0 ;i  <= $(strLen "$str") ;i++)); do
 
             local current_token="$(strGetCurrentChar "$str" $i)"
-            
+
             if [ "$current_token" = "$delimiter" ] || [ $i = $(strLen "$str") ]; then
                 local length_substring=$((i-index_start_substr))
                 local substring="$(str_substring1 "$str" $index_start_substr $length_substring)"
@@ -317,7 +323,16 @@ replaceLine(){
 WriterFile(){
 	if [ $# = 2 ]; then
 		local filename="$1"
+
+		isVariabelDeclared $2
+		if [ $? != 0 ]; then
+			return 1
+		fi
+
 		newPtr stream=$2
+
+		
+
 		for((i=0;i<${#stream[*]};i++))
 		do
 			if [ $i = 0 ]; then 
@@ -332,6 +347,13 @@ WriterFile(){
 WriterFileln(){
 	if [ $# = 2 ]; then
 		local filename="$1"
+
+		isVariabelDeclared $2
+		if [ $? != 0 ]; then
+			return 1
+		fi
+		
+
 		newPtr stream=$2
 		for((i=0;i<${#stream[*]};i++))
 		do
@@ -352,6 +374,13 @@ WriterFileln(){
 AppendFile(){
 	if [ $# = 2 ]; then
 		local filename="$1"
+
+		isVariabelDeclared $2
+		if [ $? != 0 ]; then
+			return 1
+		fi
+		
+
 		newPtr stream=$2
 		if [  -e  $filename ]; then 
 			for((i=0;i<${#stream[*]};i++))
@@ -367,6 +396,13 @@ AppendFile(){
 AppendFileln(){
 	if [ $# = 2 ]; then
 		local filename="$1"
+
+		isVariabelDeclared $2
+		if [ $? != 0 ]; then
+			return 1
+		fi
+		
+
 		newPtr stream=$2
 		if [  -e  "$filename" ]; then 
 			for((i=0;i<${#stream[*]};i++))

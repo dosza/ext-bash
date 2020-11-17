@@ -1,21 +1,6 @@
 #!/bin/bash
-source ~/Dev/common-shell-lib/common-shell.sh
 
-if [ "$(which shunit2)" = "" ]; then
-	echo "missing shunit2"
-	if [  "$(which wget)" = "" ]; then
-		echo "try download manual in https://github.com/kward/shunit2/archive/master.zip, unzip and add folder in PATH"
-		
-	else
-		echo "trying  download shunit2 in /tmp/tmp_shunit2 folder!"
-		mkdir /tmp/tmp_shunit2
-		cd /tmp/tmp_shunit2
-		wget  -c "https://github.com/kward/shunit2/archive/master.zip"
-		unzip  -o "master.zip" 
-		export PATH=$PATH:$PWD/shunit2-master
-		cd "$OLDPWD"
-	fi
-fi
+source ./get-shunit2.sh
 
 testStrLen (){
 	local str="my"
@@ -84,18 +69,43 @@ testRemoveShortEnd(){
 	assertEquals "$shortstr" "/tmp/LAMW4Linux-master/lamw_manager"
 
 	str="bainabcdefgIJKabcdefIJK"
-	local shortstr="$(strRemoveShortEnd "$str" 'a*K')"
+	shortstr="$(strRemoveShortEnd "$str" 'a*K')"
 
 	assertEquals  "$shortstr" "bainabcdefgIJK"
 }
 
 testRemoveLongEnd(){
 	local str="xyzabcdefgIJKabcdefIJK"
-	local shortstr="$(strRemoveLongEnd "$str" 'a*K')" # Strip out longest match between 'a' and 'K'.
-	assertEquals  "$shortstr" "xyz"
+	local longstr="$(strRemoveLongEnd "$str" 'a*K')" # Strip out longest match between 'a' and 'K'.
+	assertEquals  "$longstr" "xyz"
 }
 
 
+
+testSplit(){
+	local my_array=()
+	local my_str="Meu;nome;é;Daniel;Oliveira;Souza"
+	Split "$my_str" ";" my_array
+	assertEquals  ${#my_array[*]} 6
+
+	my_str="The Crown Series IV"
+	Split "$my_str" " " my_array
+	assertEquals ${#my_array[*]} 4
+
+	my_str="       int var = null"
+	Split "$my_str" " " my_array
+	assertEquals ${#my_array[*]} 11
+
+	my_array=('xz')
+	my_str="the crown series IV"
+	Split "$my_str" " " my_array
+	assertEquals ${#my_array[*]} 4
+
+	my_str="code"
+	Split "$my_str" " " my_array
+	assertEquals ${#my_array[*]} 1
+
+}
 
 testSplitStr(){
 	local my_array=()
@@ -120,6 +130,22 @@ testSplitStr(){
 	splitStr "$my_str" " " my_array
 	assertEquals ${#my_array[*]} 1
 
+}
+
+testStrReplace(){
+	local path="/home/user/LAMW4Linux-master/lamw_manager/lamw_manager"
+	local base_path="$(strReplace "$path" "/lamw_manager" "" )"
+	assertEquals "/home/user/LAMW4Linux-master/lamw_manager" "$base_path"
+
+	path="name=admin"
+	base_path="$(strReplace "$path" "admin" "user" )"
+	assertEquals "name=user" "$base_path"
+}
+
+testStrReplaceAll(){
+	local path="/home/user/LAMW4Linux-master/lamw_manager/lamw_manager"
+	local base_path="$(strReplaceAll  "$path" "/lamw_manager" "" )"
+	assertEquals "/home/user/LAMW4Linux-master" "$base_path"
 }
 
 
