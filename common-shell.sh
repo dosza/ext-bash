@@ -40,6 +40,24 @@ isVariabelDeclared(){
 	return $?
 }
 
+
+# returns to stdout a string  to lowcase
+# $1 is a string 
+# $2 flag  all to ZERO
+strToLowerCase(){
+	if [ "$1" = "" ]; then return 1 ; fi
+
+	echo "${1,,}"
+
+}
+
+# returns to stdout a string  to UpperCase
+# $1 is a string 
+strToUpperCase(){
+	if [ "$1" = "" ]; then return 1 ; fi
+	echo "${1^^}"
+}
+
 #get a substring  with of str with offset and length, is a funtion to expansion ${str:$offset:$length}
 # $1 is a string, note:
 # $2 is a offset

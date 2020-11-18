@@ -157,5 +157,26 @@ testStrReplaceAll(){
 }
 
 
+testStrToUpperCase(){
+	local str="my name is ammy pond"
+
+	assertEquals "$(strToUpperCase "$str")" "MY NAME IS AMMY POND"
+
+	str="my name is Ammy Pond"
+
+	assertEquals "$(strToUpperCase "$str")" "MY NAME IS AMMY POND"
+
+}
+
+
+testStrToLowerCase(){
+	local str="MY NAME IS AMMY POND"
+	assertEquals "$(strToLowerCase "$str")" "my name is ammy pond"
+
+	str="My Name is Ammy Pond"
+	assertEquals "$(strToLowerCase "$str")" "my name is ammy pond"
+}
+
+
 # Load and run shUnit2.
 . $(which shunit2)
