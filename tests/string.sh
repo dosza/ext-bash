@@ -2,6 +2,33 @@
 
 source ./get-shunit2.sh
 
+testIsStrEqual(){
+	local str="my name"
+	local st2="$str"
+
+	assertTrue "[ $(isStrEqual "$str" "$st2") ]"
+	assertTrue "[ $(isStrEqual "$str" "$st2")  -eq $BASH_TRUE ]"
+	assertTrue "[ $(isStrEqual "$str" "$st2") ]"
+	assertTrue "[ $(isStrEqual "$str" "$st2") -eq $BASH_TRUE ]"
+	st2="blablabla"
+	assertFalse "[ $(isStrEqual "$str" "$st2") -eq $BASH_TRUE ]"
+	assertFalse "[ $(isStrEqual "Daniel" "Kate") -eq $BASH_TRUE ]"
+
+}
+
+
+testIsStrEmpty(){
+	local str="my name"
+
+	assertFalse "[ $(isStrEmpty "$str") -eq $BASH_TRUE ]"
+	assertFalse "[ $(isStrEmpty "Daniel") -eq $BASH_TRUE ]"
+	str=""
+	assertTrue "[ $(isStrEmpty "$str") ]"
+	assertTrue "[ $(isStrEmpty "") ]"
+	assertTrue "[ $(isStrEmpty "") -eq $BASH_TRUE  ]"
+	assertTrue "[ $(isStrEmpty "$str") -eq $BASH_TRUE  ]"
+
+}
 testStrLen (){
 	local str="my"
 	assertEquals $(strLen "$str") 2

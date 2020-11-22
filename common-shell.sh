@@ -22,6 +22,8 @@ export VERMELHO=$'\e[1;31m'
 export VERMELHO_SUBLINHADO=$'\e[1;4;31m'
 export AZUL=$'\e[1;34m'
 export NORMAL=$'\e[0m'
+export BASH_TRUE=0
+export BASH_FALSE=1
 APT_LOCKS=(
 	"/var/lib/dpkg/lock"
 	"/var/lib/apt/lists/lock"
@@ -58,6 +60,17 @@ strToUpperCase(){
 	echo "${1^^}"
 }
 
+isStrEqual(){
+	if [ "$1" = "$2" ]; then
+		echo $BASH_TRUE
+	else
+		echo $BASH_FALSE
+	fi
+}
+
+isStrEmpty(){
+	isStrEqual "$1" ""
+}
 #get a substring  with of str with offset and length, is a funtion to expansion ${str:$offset:$length}
 # $1 is a string, note:
 # $2 is a offset
@@ -66,7 +79,7 @@ strToUpperCase(){
 strGetSubstring(){
     if [ ${#} -lt 2 ] || ( [ "$1" = "" ] || [ ${2} -lt 0 ] ||  [ ! -z "$3" ] && [ $3 -lt  1 ]  ); then
 
-    	echo  -e "${VERMELHO}Wrong use function${NORMAL}\n${NEGRITO}Usage:\n\tstrSubstring \"\$str\" \$offset\n\tstrSubstring \"\$str\" \$offset \$length\n${NORMAL} " >&2
+    	#echo  -e "${VERMELHO}Wrong use function${NORMAL}\n${NEGRITO}Usage:\n\tstrSubstring \"\$str\" \$offset\n\tstrSubstring \"\$str\" \$offset \$length\n${NORMAL} " >&2
     	echo ""
         return 1
     fi
@@ -520,6 +533,37 @@ AptInstall(){
 	apt-get autoclean
 }
 
+ConfigureSourcesListByScript(){
+	if [ $# -lt 1 ]; then return 1; fi
+
+	isVariabelDeclared $1
+	if [ $? != 0 ]; then return 1; fi
+
+	newPtr ref_scripts_link=$1
+	
+	for i in ${!ref_scripts_link[*]}; do 
+		Wget -O- -q ${ref_scripts_link[i]} | bash -
+	done
+}
+
+getAptKeys(){
+	if [ $# -lt 1 ] || [ $(isStrEmpty "$1") ] ; then return 1; fi
+
+	isVariabelDeclared $1
+	newPtr ref_apt_keys=$1
+
+	for i in ${!ref_apt_keys[*]}; do 
+		Wget -0q- "${ref_apt_keys[i]}" | apt-key add  -
+	done
+}
+
+ConfigureSourcesList(){
+	if [ $# -lt 3 ]; then return 1; fi
+	getAptKeys $1
+	writeAptMirrors $2 $3
+}
+
+
 #Retorna verdadeiro se o pacote $1 está instalado
 isDebPackInstalled(){
 	if [ "$1" = "" ]; then
@@ -533,4 +577,45 @@ isDebPackInstalled(){
 	else
 		return 0;
 	fi
+}
+
+arraySlice(){
+	if [ "$1" = "" ] || [ $# -lt 3 ]; then return 1 ; fi
+
+	isVariabelDeclared $1
+	if [ $? != 0 ]; then return 1; fi
+
+	newPtr ref_array_sliced=$1
+
+	if [ $2 -lt 0 ] || [ $2 -lt ${#ref_array_sliced[*]} ] || [ ! -z  $3 ] && ( [ $3 -lt 0 ]	||  [ ${#ref_array_sliced[*]} -lt $3 ] ); then return 1
+	fi
+
+	case $# in 
+		3 )
+			isVariabelDeclared $3
+			if [ $? != 0 ]; then return 1; fi
+				
+			newPtr ref_ret_array_sliced=$3
+			ref_ret_array_sliced=("${ref_array_sliced[@]:$2}")
+		;;
+		4 )
+			isVariabelDeclared $4
+			if [ $? != 0 ]; then return 1; fi
+
+			newPtr ref_ret_array_sliced=$4
+			ref_ret_array_sliced=("${ref_array_sliced[@]:$2:$3}")
+		;;
+	esac
+
+}
+
+arrayToString(){
+	if [ "$1" = "" ] ; then return 1 ; fi
+
+	isVariabelDeclared $1
+	if [ $? != 0 ]; then return 1; fi
+
+	newPtr array_str=$1
+	
+	echo "${array_str[*]}"
 }
