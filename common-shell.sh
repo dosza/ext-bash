@@ -32,6 +32,7 @@ APT_LOCKS=(
 )
 shopt  -s expand_aliases
 alias newPtr='declare -n'
+alias isFalse='if [ $? != 0 ]; then return 1; fi'
 
 #check f variable exists
 
@@ -77,22 +78,13 @@ isStrEmpty(){
 # $3 is a length of string
 # returns to stdout of substring
 strGetSubstring(){
-    if [ ${#} -lt 2 ] || ( [ "$1" = "" ] || [ ${2} -lt 0 ] ||  [ ! -z "$3" ] && [ $3 -lt  1 ]  ); then
-
-    	#echo  -e "${VERMELHO}Wrong use function${NORMAL}\n${NEGRITO}Usage:\n\tstrSubstring \"\$str\" \$offset\n\tstrSubstring \"\$str\" \$offset \$length\n${NORMAL} " >&2
-    	echo ""
-        return 1
-    fi
+    if [ ${#} -lt 2 ] || ( [ "$1" = "" ] || [ ${2} -lt 0 ] ||  [ ! -z "$3" ] && [ $3 -lt  1 ]  ); then echo "" ;return ;fi
 
 
   	case $# in 
 
-  		2)
-			echo "${1:$2}"
-		;;
-		3)
-			echo "${1:$2:$3}"
-		;;
+  		2) echo "${1:$2}" ;;
+		3) echo "${1:$2:$3}" ;;
 	esac
 }
 
@@ -207,9 +199,7 @@ Split (){
 	fi
 
 	isVariabelDeclared $3
-	if [ $? != 0 ]; then
-		return 1
-	fi
+	isFalse
 
 
 	local str="$1"
@@ -233,9 +223,7 @@ splitStr(){
     fi
 
     isVariabelDeclared $3
-	if [ $? != 0 ]; then
-		return 1
-	fi
+	isFalse
 		
 
     local str="$1"
@@ -389,9 +377,7 @@ WriterFileln(){
 		local filename="$1"
 
 		isVariabelDeclared $2
-		if [ $? != 0 ]; then
-			return 1
-		fi
+		isFalse
 		
 
 		newPtr stream=$2
@@ -416,9 +402,7 @@ AppendFile(){
 		local filename="$1"
 
 		isVariabelDeclared $2
-		if [ $? != 0 ]; then
-			return 1
-		fi
+		isFalse
 		
 
 		newPtr stream=$2
@@ -438,9 +422,7 @@ AppendFileln(){
 		local filename="$1"
 
 		isVariabelDeclared $2
-		if [ $? != 0 ]; then
-			return 1
-		fi
+		isFalse
 		
 
 		newPtr stream=$2
@@ -537,7 +519,7 @@ ConfigureSourcesListByScript(){
 	if [ $# -lt 1 ]; then return 1; fi
 
 	isVariabelDeclared $1
-	if [ $? != 0 ]; then return 1; fi
+	isFalse
 
 	newPtr ref_scripts_link=$1
 	
@@ -583,7 +565,7 @@ arraySlice(){
 	if [ "$1" = "" ] || [ $# -lt 3 ]; then return 1 ; fi
 
 	isVariabelDeclared $1
-	if [ $? != 0 ]; then return 1; fi
+	isFalse
 
 	newPtr ref_array_sliced=$1
 
@@ -613,7 +595,7 @@ arrayToString(){
 	if [ "$1" = "" ] ; then return 1 ; fi
 
 	isVariabelDeclared $1
-	if [ $? != 0 ]; then return 1; fi
+	isFalse
 
 	newPtr array_str=$1
 	

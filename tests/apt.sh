@@ -1,4 +1,4 @@
-source ./get-shunit2.sh
+source ./get-shunit2
 
 
 testAptGetKeys(){

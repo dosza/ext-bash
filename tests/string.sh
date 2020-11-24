@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./get-shunit2.sh
+source ./get-shunit2
 
 testIsStrEqual(){
 	local str="my name"

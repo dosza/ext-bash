@@ -1,0 +1,4 @@
+#!/bin/bash
+for i in $(ls *.sh); do
+    bash $i
+done

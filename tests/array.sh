@@ -1,6 +1,6 @@
 #!/bin/bash
 
-source ./get-shunit2.sh
+source ./get-shunit2
 
 testArrayToSTring(){
     local array=({0..10..2})
