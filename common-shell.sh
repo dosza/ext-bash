@@ -44,6 +44,7 @@ isVariabelDeclared(){
 }
 
 
+
 # returns to stdout a string  to lowcase
 # $1 is a string 
 # $2 flag  all to ZERO
@@ -82,7 +83,6 @@ strGetSubstring(){
 
 
   	case $# in 
-
   		2) echo "${1:$2}" ;;
 		3) echo "${1:$2:$3}" ;;
 	esac
@@ -575,14 +575,14 @@ arraySlice(){
 	case $# in 
 		3 )
 			isVariabelDeclared $3
-			if [ $? != 0 ]; then return 1; fi
+			isFalse
 				
 			newPtr ref_ret_array_sliced=$3
 			ref_ret_array_sliced=("${ref_array_sliced[@]:$2}")
 		;;
 		4 )
 			isVariabelDeclared $4
-			if [ $? != 0 ]; then return 1; fi
+			isFalse
 
 			newPtr ref_ret_array_sliced=$4
 			ref_ret_array_sliced=("${ref_array_sliced[@]:$2:$3}")
@@ -600,4 +600,29 @@ arrayToString(){
 	newPtr array_str=$1
 	
 	echo "${array_str[*]}"
+}
+arrayMap(){
+	isVariabelDeclared $1
+	isFalse
+
+    newPtr refMap=$1
+    eval "for $(echo $2) in ${refMap[*]};do eval $3; done"
+}
+
+arrayFilter(){
+	isVariabelDeclared $1
+	isFalse
+	
+	newPtr refArray=$1
+	isVariabelDeclared $3
+	isFalse
+
+	newPtr refFilter=$3
+	eval "unset $(echo $2)"
+	refFilter=()
+	eval "for $(echo $2) in ${refArray[*]};do $4;  if [ \$? = 0 ]; then refFilter[\${#refFilter[*]}]=$(echo \$$2);fi ;done" #if [ $? = 0 ]; then eval echo \$$2;fi; done"
+
+
+
+
 }

@@ -23,5 +23,27 @@ testArraySlice(){
     assertFalse "[ $(arraySlice myarray) ]"
 }
 
+testArrayMap(){
+    local packages=(gcc g++ wget)
+    local str="gcc\ng++\nwget\n"
+    assertEquals "$(arrayMap packages package 'echo $package')" "$(printf "%b" "$str")"
+
+}
+
+testArrayFilter(){
+    local numbers=({357..368})
+    local pares=()
+    local impares=()
+    
+    arrayFilter numbers number pares '((number % 2 == 0))'
+    assertEquals "${pares[*]}" "358 360 362 364 366 368"
+
+    arrayFilter numbers number impares '{
+        ((number %2 != 0))
+    }'
+
+    assertEquals "${impares[*]}" "357 359 361 363 365 367"
+}
+
 . $(which shunit2)
 
