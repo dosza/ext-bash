@@ -608,6 +608,8 @@ arrayMap(){
 		isFalse
 
     	newPtr refMap=$1
+
+    	
 	case $# in
 		3)
 			eval "for $(echo $2) in ${refMap[*]};do $3; done"
