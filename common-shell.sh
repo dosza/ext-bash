@@ -602,11 +602,20 @@ arrayToString(){
 	echo "${array_str[*]}"
 }
 arrayMap(){
-	isVariabelDeclared $1
-	isFalse
 
-    newPtr refMap=$1
-    eval "for $(echo $2) in ${refMap[*]};do eval $3; done"
+	if [ $# -lt 3 ] ; then return ; fi 
+		isVariabelDeclared $1
+		isFalse
+
+    	newPtr refMap=$1
+	case $# in
+		3)
+			eval "for $(echo $2) in ${refMap[*]};do $3; done"
+		;;
+		4)
+			eval "for $(echo $3) in ${!refMap[*]};do eval $(echo $2=\${refMap[\$$3]}); $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
+		;;
+	esac
 }
 
 arrayFilter(){

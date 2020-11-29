@@ -26,15 +26,22 @@ testArraySlice(){
 testArrayMap(){
     local packages=(gcc g++ wget)
     local str="gcc\ng++\nwget\n"
+    local buttons=(button{Um,Dois,Tres})
+    local sounds=(one two three)
+    local strButtons='view.findViewById(R.id.buttonUm)\nview.findViewById(R.id.buttonDois)\nview.findViewById(R.id.buttonTres)\n'
+    local strButtonsAct="case R.id.${buttons[0]}:\n\tmediaPlayer = MediaPlayer(getActivity(),R.raw.${sounds[0]});\n\tbreak;\ncase R.id.${buttons[1]}:\n\tmediaPlayer = MediaPlayer(getActivity(),R.raw.${sounds[1]});\n\tbreak;\ncase R.id.${buttons[2]}:\n\tmediaPlayer = MediaPlayer(getActivity(),R.raw.${sounds[2]});\n\tbreak;\n"
+   
     assertEquals "$(arrayMap packages package 'echo $package')" "$(printf "%b" "$str")"
-
+    assertEquals "$(arrayMap buttons button index 'echo view.findViewById\(R.id.$button\)')" "$(printf "%b" "$strButtons")"
+    assertEquals "$(arrayMap buttons button index 'printf "%b" "case R.id.$button:\n\tmediaPlayer = MediaPlayer(getActivity(),R.raw.${sounds[$index]});\n\tbreak;\n"')" "$(printf "%b" "$strButtonsAct")"
+    
 }
 
 testArrayFilter(){
     local numbers=({357..368})
     local pares=()
     local impares=()
-    
+
     arrayFilter numbers number pares '((number % 2 == 0))'
     assertEquals "${pares[*]}" "358 360 362 364 366 368"
 
