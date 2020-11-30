@@ -34,15 +34,123 @@ shopt  -s expand_aliases
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
 
+
+isVariableArray(){
+	declare -p $1 | grep '^declare -[aA]' > /dev/null
+}
+
+len(){
+	isVariabelDeclared $1
+	if [ $? != 0 ]; then strLen "$1" ;return ;fi
+
+	isVariableArray $1
+	if [ $? = 0 ]; then 
+		eval "echo \${#$1[*]}"
+	else
+		eval "echo \${#$1}"
+	fi
+}
+
 #check f variable exists
 
 isVariabelDeclared(){
-	if [ $1 = '' ]; then return 1; fi
+	if [ "$1" = "" ]; then return 1; fi
 
 	declare -p "$1" &> /dev/null
 	return $?
 }
 
+arraySlice(){
+	if [ "$1" = "" ] || [ $# -lt 3 ]; then return 1 ; fi
+
+	isVariabelDeclared $1
+	isFalse
+
+	newPtr ref_array_sliced=$1
+
+	if [ $2 -lt 0 ] || [ $2 -lt ${#ref_array_sliced[*]} ] || [ ! -z  $3 ] && ( [ $3 -lt 0 ]	||  [ ${#ref_array_sliced[*]} -lt $3 ] ); then return 1
+	fi
+
+	case $# in 
+		3 )
+			isVariabelDeclared $3
+			isFalse
+				
+			newPtr ref_ret_array_sliced=$3
+			ref_ret_array_sliced=("${ref_array_sliced[@]:$2}")
+		;;
+		4 )
+			isVariabelDeclared $4
+			isFalse
+
+			newPtr ref_ret_array_sliced=$4
+			ref_ret_array_sliced=("${ref_array_sliced[@]:$2:$3}")
+		;;
+	esac
+
+}
+
+arrayToString(){
+	if [ "$1" = "" ] ; then return 1 ; fi
+
+	isVariabelDeclared $1
+	isFalse
+
+	newPtr array_str=$1
+	echo "${array_str[*]}"
+}
+#This this function executes 'one or more commands' on each item in an array. Similar to the map () method of javascript and python.
+
+#This function works in two ways: it accepts 3 or 4 arguments.
+# names=(Elis Ethel Izzy)
+
+#Form 1:
+#$1 is the input array (example: names)
+#$2 is an iterative variable (example: name)
+#$3 is the commands to be executed: (example: 'echo $name')
+
+#Form 2:
+#$3 is a index variable (ex: index )
+#$4 is the commands to execute 'echo $name'
+#using form1:
+# arrayMap names name 'echo $name'
+#using form2:
+#arrayMap names name index 'echo ${names[index]}'
+
+arrayMap(){
+
+	if [ $# -lt 3 ] || [ 4 -lt $# ] ; then return ; fi 
+	
+	isVariabelDeclared $1
+	isFalse
+
+	newPtr refMap=$1
+
+	case $# in
+		3)
+			eval "for $(echo $2) in ${refMap[*]};do $3; done"
+		;;
+		4)
+			eval "for $(echo $3) in ${!refMap[*]};do eval $(echo $2=\${refMap[\$$3]}); $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
+		;;
+	esac
+}
+
+arrayFilter(){
+
+	if [ $# -lt 3 ]; then return 1; fi 
+	isVariabelDeclared $1
+	isFalse
+	
+	newPtr refArray=$1
+	isVariabelDeclared $3
+	isFalse
+
+	newPtr refFilter=$3
+	refFilter=()
+	eval "for $(echo $2) in ${refArray[*]};do $4;  if [ \$? = 0 ]; then refFilter[\${#refFilter[*]}]=$(echo \$$2);fi ;done" 
+
+}
 
 
 # returns to stdout a string  to lowcase
@@ -561,77 +669,3 @@ isDebPackInstalled(){
 	fi
 }
 
-arraySlice(){
-	if [ "$1" = "" ] || [ $# -lt 3 ]; then return 1 ; fi
-
-	isVariabelDeclared $1
-	isFalse
-
-	newPtr ref_array_sliced=$1
-
-	if [ $2 -lt 0 ] || [ $2 -lt ${#ref_array_sliced[*]} ] || [ ! -z  $3 ] && ( [ $3 -lt 0 ]	||  [ ${#ref_array_sliced[*]} -lt $3 ] ); then return 1
-	fi
-
-	case $# in 
-		3 )
-			isVariabelDeclared $3
-			isFalse
-				
-			newPtr ref_ret_array_sliced=$3
-			ref_ret_array_sliced=("${ref_array_sliced[@]:$2}")
-		;;
-		4 )
-			isVariabelDeclared $4
-			isFalse
-
-			newPtr ref_ret_array_sliced=$4
-			ref_ret_array_sliced=("${ref_array_sliced[@]:$2:$3}")
-		;;
-	esac
-
-}
-
-arrayToString(){
-	if [ "$1" = "" ] ; then return 1 ; fi
-
-	isVariabelDeclared $1
-	isFalse
-
-	newPtr array_str=$1
-	echo "${array_str[*]}"
-}
-arrayMap(){
-
-	if [ $# -lt 3 ] || [ 4 -lt $# ] ; then return ; fi 
-	
-	isVariabelDeclared $1
-	isFalse
-
-	newPtr refMap=$1
-
-	case $# in
-		3)
-			eval "for $(echo $2) in ${refMap[*]};do $3; done"
-		;;
-		4)
-			eval "for $(echo $3) in ${!refMap[*]};do eval $(echo $2=\${refMap[\$$3]}); $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
-		;;
-	esac
-}
-
-arrayFilter(){
-
-	if [ $# -lt 3 ]; then return 1; fi 
-	isVariabelDeclared $1
-	isFalse
-	
-	newPtr refArray=$1
-	isVariabelDeclared $3
-	isFalse
-
-	newPtr refFilter=$3
-	eval "unset $(echo $2)"
-	refFilter=()
-	eval "for $(echo $2) in ${refArray[*]};do $4;  if [ \$? = 0 ]; then refFilter[\${#refFilter[*]}]=$(echo \$$2);fi ;done" 
-
-}
