@@ -35,8 +35,16 @@ New: String manipulation functions
 + Split(str,delimiter,ref_array) // split (using a builtin command) a string and store in ref_array ( ref_array is a reference to array )
 + splitStr(str,delimiter,ref_array) split a string and store in ref_array
 
+New: Array Functions
+---
++ arrayMap(array,item, '{commands...}') // executes 'one or more commands' on each item in an array.
++ arrayFilter(array, item, filtersItens, '[conditions]')
++ arrayToString(array)
++ arraySlice(array,offset,arraySliced) || arraySlice(array,offset,length,arraySliced)
+---
 
 ### sample:
+
 ```bash
 #!/bin/bash 
 # without common-shell-lib
@@ -69,3 +77,34 @@ Split "$str" " " my_array # my_array=("Hello" "World!")
 source ./common-shell-lib.sh
 str="user@pc:~"
 sub_str="$(strGetSubstring "$str" 5 2)" #sub_str="pc"
+```
+
+### sample: Installing packages using arrayMap
+```bash
+source ./common-shell-lib
+packages=(gcc g++ wget)
+arrayMap  packages package 'sudo apt-get install $package -y
+```
+**Notes**:
+**packages** is array variable
+**package** is name to iterator
+'**sudo apt-get install $package**'  is a command to execute for each item in packages
+
+
+### sample: Filter pars numbers and store in pars.
+```bash
+source ./common-shell-lib
+numbers=({357..368})
+pars=()
+arrayFilter numbers number pars '((number %2 == 0))'
+#show pars
+arrayToString pars
+```
+
+### sample: Filter names with start of letter D
+```bash
+source ./common-shell-lib
+names=(Davros Daniel Debra 'Yan Mordock' Woody)
+matchD=()
+arrayFilter names name matchD 'echo "$name" | grep ^D'
+```

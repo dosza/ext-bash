@@ -598,18 +598,17 @@ arrayToString(){
 	isFalse
 
 	newPtr array_str=$1
-	
 	echo "${array_str[*]}"
 }
 arrayMap(){
 
-	if [ $# -lt 3 ] ; then return ; fi 
-		isVariabelDeclared $1
-		isFalse
+	if [ $# -lt 3 ] || [ 4 -lt $# ] ; then return ; fi 
+	
+	isVariabelDeclared $1
+	isFalse
 
-    	newPtr refMap=$1
+	newPtr refMap=$1
 
-    	
 	case $# in
 		3)
 			eval "for $(echo $2) in ${refMap[*]};do $3; done"
@@ -621,6 +620,8 @@ arrayMap(){
 }
 
 arrayFilter(){
+
+	if [ $# -lt 3 ]; then return 1; fi 
 	isVariabelDeclared $1
 	isFalse
 	
@@ -631,9 +632,6 @@ arrayFilter(){
 	newPtr refFilter=$3
 	eval "unset $(echo $2)"
 	refFilter=()
-	eval "for $(echo $2) in ${refArray[*]};do $4;  if [ \$? = 0 ]; then refFilter[\${#refFilter[*]}]=$(echo \$$2);fi ;done" #if [ $? = 0 ]; then eval echo \$$2;fi; done"
-
-
-
+	eval "for $(echo $2) in ${refArray[*]};do $4;  if [ \$? = 0 ]; then refFilter[\${#refFilter[*]}]=$(echo \$$2);fi ;done" 
 
 }
