@@ -33,6 +33,7 @@ APT_LOCKS=(
 shopt  -s expand_aliases
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
+alias WARM_ERROR_NETWORK='if [ $? != 0 ]; then echo "possible network instability!!";exit 1;fi'
 
 
 isVariableArray(){
@@ -131,7 +132,7 @@ arrayMap(){
 			eval "for $(echo $2) in ${refMap[*]};do $3; done"
 		;;
 		4)
-			eval "for $(echo $3) in ${!refMap[*]};do eval $(echo $2=\${refMap[\$$3]}); $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
+			eval "for $(echo $3) in ${!refMap[*]}; do $2=\${refMap[\$$3]}; $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
 		;;
 	esac
 }
@@ -466,17 +467,13 @@ WriterFile(){
 		fi
 
 		newPtr stream=$2
-
-		
-
-		for((i=0;i<${#stream[*]};i++))
-		do
-			if [ $i = 0 ]; then 
-				printf "%b" "${stream[i]}" > "$filename"
+		arrayMap stream line index '{
+			if [ $index = 0 ]; then 
+				printf "%b" "$line" > "$filename"
 			else
-				printf "%b" "${stream[i]}" >> "$filename"
+				printf "%b" "$line" >> "$filename"
 			fi
-		done
+		}'
 	fi
 }
 
@@ -489,14 +486,13 @@ WriterFileln(){
 		
 
 		newPtr stream=$2
-		for((i=0;i<${#stream[*]};i++))
-		do
-			if [ $i = 0 ]; then 
-				printf "%b\n" "${stream[i]}" > "$filename"
+		arrayMap stream line index '{
+			if [ $index = 0 ]; then 
+				printf "%b\n" "$line" > "$filename"
 			else
-				printf "%b\n" "${stream[i]}" >> "$filename"
+				printf "%b\n" "$line" >> "$filename"
 			fi
-		done
+		}'
 	fi
 }
 
@@ -515,10 +511,7 @@ AppendFile(){
 
 		newPtr stream=$2
 		if [  -e  $filename ]; then 
-			for((i=0;i<${#stream[*]};i++))
-			do
-					printf "%b" "${stream[i]}" >> "$filename"
-			done
+			arrayMap stream line 'printf "%b" "$line" >> "$filename"'
 		else
 			echo "\"$filename\" does not exists!"
 		fi
@@ -535,10 +528,7 @@ AppendFileln(){
 
 		newPtr stream=$2
 		if [  -e  "$filename" ]; then 
-			for((i=0;i<${#stream[*]};i++))
-			do
-				printf "%b\n" "${stream[i]}" >> "$filename"
-			done
+		arrayMap stream line 'printf "%b\n" "$line" >> "$filename"'
 		else
 			echo "\"$filename\" does not exists!"
 		fi
@@ -564,10 +554,8 @@ IsUserRoot(){
 }
 
 Wget(){
-	if [ $1 = "" ]; then
-		echo "Wget needs a argument"
-		exit 1
-	fi
+	if [ $1 = "" ]; then echo "Wget needs a argument"; exit 1;fi
+	
 	local wget_opts="-c --timeout=300"
 	wget $wget_opts $*
 	if [ $? != 0 ]; then
@@ -630,10 +618,8 @@ ConfigureSourcesListByScript(){
 	isFalse
 
 	newPtr ref_scripts_link=$1
+	arrayMap ref_scripts_link script 'Wget -O- -q "$script" | bash - '
 	
-	for i in ${!ref_scripts_link[*]}; do 
-		Wget -O- -q ${ref_scripts_link[i]} | bash -
-	done
 }
 
 getAptKeys(){
@@ -641,10 +627,8 @@ getAptKeys(){
 
 	isVariabelDeclared $1
 	newPtr ref_apt_keys=$1
-
-	for i in ${!ref_apt_keys[*]}; do 
-		Wget -0q- "${ref_apt_keys[i]}" | apt-key add  -
-	done
+	arrayMap ref_apt_keys key 'Wget -0q- "$key" | apt-key add - '
+	
 }
 
 ConfigureSourcesList(){
