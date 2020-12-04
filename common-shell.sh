@@ -129,10 +129,10 @@ arrayMap(){
 
 	case $# in
 		3)
-			eval "for $(echo $2) in ${refMap[*]};do $3; done"
+			eval "for $2 in ${refMap[*]};do $3; done"
 		;;
 		4)
-			eval "for $(echo $3) in ${!refMap[*]}; do $2=\${refMap[\$$3]}; $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
+			eval "for $3 in ${!refMap[*]}; do $2=\${refMap[\$$3]}; $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
 		;;
 	esac
 }
@@ -149,7 +149,7 @@ arrayFilter(){
 
 	newPtr refFilter=$3
 	refFilter=()
-	eval "for $(echo $2) in ${refArray[*]};do $4;  if [ \$? = 0 ]; then refFilter[\${#refFilter[*]}]=$(echo \$$2);fi ;done" 
+	eval "for $2 in ${refArray[*]};do $4;  if [ \$? = 0 ]; then refFilter[\${#refFilter[*]}]=$(echo \$$2);fi ;done" 
 
 }
 

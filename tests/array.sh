@@ -30,18 +30,15 @@ testArrayMap(){
     local sounds=(one two three)
     local strButtons='view.findViewById(R.id.buttonUm)\nview.findViewById(R.id.buttonDois)\nview.findViewById(R.id.buttonTres)\n'
     local strButtonsAct="case R.id.${buttons[0]}:\n\tmediaPlayer = MediaPlayer(getActivity(),R.raw.${sounds[0]});\n\tbreak;\ncase R.id.${buttons[1]}:\n\tmediaPlayer = MediaPlayer(getActivity(),R.raw.${sounds[1]});\n\tbreak;\ncase R.id.${buttons[2]}:\n\tmediaPlayer = MediaPlayer(getActivity(),R.raw.${sounds[2]});\n\tbreak;\n"
-   
     assertEquals "$(arrayMap packages package 'echo $package')" "$(printf "%b" "$str")"
     assertEquals "$(arrayMap buttons button index 'echo view.findViewById\(R.id.$button\)')" "$(printf "%b" "$strButtons")"
     assertEquals "$(arrayMap buttons button index 'printf "%b" "case R.id.$button:\n\tmediaPlayer = MediaPlayer(getActivity(),R.raw.${sounds[$index]});\n\tbreak;\n"')" "$(printf "%b" "$strButtonsAct")"
-
 }
 
 testArrayFilter(){
     local numbers=({357..368})
     local pares=()
     local impares=()
-
     local names=('Daniel' 'Davros' 'Elis' 'Etel')
     local matchDNames=()
 
