@@ -40,6 +40,10 @@ isVariableArray(){
 	declare -p $1 | grep '^declare -[aA]' > /dev/null
 }
 
+isVariableAssociativeArray(){
+	declare -p $1 | grep '^declare -A' > /dev/null
+}
+
 len(){
 	isVariabelDeclared $1
 	if [ $? != 0 ]; then strLen "$1" ;return ;fi
@@ -69,11 +73,10 @@ arraySlice(){
 
 	newPtr ref_array_sliced=$1
 
-	if [ $2 -lt 0 ] || [ $2 -lt ${#ref_array_sliced[*]} ] || [ ! -z  $3 ] && ( [ $3 -lt 0 ]	||  [ ${#ref_array_sliced[*]} -lt $3 ] ); then return 1
-	fi
 
 	case $# in 
 		3 )
+			echo $*
 			isVariabelDeclared $3
 			isFalse
 				
@@ -129,7 +132,7 @@ arrayMap(){
 
 	case $# in
 		3)
-			eval "for $2 in ${refMap[*]};do $3; done"
+			eval "for _mapIdx in ${!refMap[*]};do $2=\${refMap[\$_mapIdx]}; $3; done"
 		;;
 		4)
 			eval "for $3 in ${!refMap[*]}; do $2=\${refMap[\$$3]}; $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
@@ -140,16 +143,79 @@ arrayMap(){
 arrayFilter(){
 
 	if [ $# -lt 3 ]; then return 1; fi 
-	isVariabelDeclared $1
-	isFalse
-	
-	newPtr refArray=$1
-	isVariabelDeclared $3
-	isFalse
 
-	newPtr refFilter=$3
-	refFilter=()
-	eval "for $2 in ${refArray[*]};do $4;  if [ \$? = 0 ]; then refFilter[\${#refFilter[*]}]=$(echo \$$2);fi ;done" 
+	case $# in 
+		4)
+			isVariabelDeclared $1
+			isFalse
+	
+			newPtr refArray=$1
+			isVariabelDeclared $3
+			isFalse
+
+
+			
+
+			newPtr refFilter=$3
+			refFilter=()
+			isVariableAssociativeArray $3
+			if [ $? = 0 ]; then 
+				eval "for  key_filter in ${!refArray[*]}
+			do 
+				$2=\${refArray[\$key_filter]}
+				$4
+				if [ \$?  = 0 ]; then 
+					refFilter[\$key_filter]=\$$2
+				fi
+			done"
+
+			else
+
+				eval "for _filterIdx in ${!refArray[*]};do  
+					$2=\${refArray[\$_filterIdx]}
+					$4
+					if [ \$? = 0 ]; then 
+						refFilter+=(\$$2)
+						fi
+					done" 
+			fi
+		;;
+		5)
+			isVariabelDeclared $1
+			isFalse
+			newPtr refArray=$1
+
+			isVariabelDeclared $4
+			isFalse
+			newPtr refFilter=$4
+
+			refFilter=()
+			
+
+			#arrayFilter array iterator index filterD '{commands}'
+			#arrayFilter packages pack index filter '{...}'
+			isVariableAssociativeArray $4
+			if [ $? = 0 ]; then 
+				eval "for  $3 in ${!refArray[*]}
+				do 
+					$2=\${refArray[\$$3]}
+					$5
+					if [ \$?  = 0 ]; then 
+						refFilter[\$$3]=\$$2
+					fi
+				done"
+			else
+				eval "for  $3 in ${!refArray[*]}
+				do 
+					$2=\${refArray[\$$3]}
+					$5
+					if [ \$?  = 0 ]; then 
+						refFilter+=(\$$2)
+					fi
+				done"
+			fi
+		;;
+	esac
 
 }
 
@@ -226,7 +292,7 @@ strGetCurrentChar(){
 strRemoveShortStart(){
     local str="$1"
     local del_substr="$2"
-    echo ${str#$del_substr}
+    echo "${str#$del_substr}"
 }
 
 #remove longest match from start string, is  a function to expansion ${str##$substr}
@@ -237,7 +303,7 @@ strRemoveShortStart(){
 strRemoveLongStart(){
     local str="$1"
     local del_substr="$2"
-    echo ${str##$del_substr}
+    echo "${str##$del_substr}"
 }
 
 #remove the shortest match from end string, is a function to expansion ${str%$substr}
@@ -248,7 +314,7 @@ strRemoveLongStart(){
 strRemoveShortEnd(){
     local str="$1"
     local del_substr="$2"
-    echo ${str%$del_substr}
+    echo "${str%$del_substr}"
 }
 
 
@@ -261,7 +327,7 @@ strRemoveShortEnd(){
 strRemoveLongEnd(){
     local str="$1"
     local del_substr="$2"
-    echo ${str%%$del_substr}
+    echo "${str%%$del_substr}"
 }
 
 #Replace the first ocorrence of substring, is a function to expansion ${str/$find/$replace}
@@ -274,7 +340,7 @@ strReplace(){
 	local str="$1"
 	local find="$2"
 	local replace="$3"
-	echo ${str/$find/$replace}
+	echo "${str/$find/$replace}"
 }
 
 #Replace all ocorrences of substring, is a function to expansion ${str//$find/$replace}
@@ -287,12 +353,12 @@ strReplaceAll(){
 	local str="$1"
 	local find="$2"
 	local replace="$3"
-	echo ${str//$find/$replace}
+	echo "${str//$find/$replace}"
 }
 strRemoveAll(){
     local str="$1"
     local del_substr="$2"
-    echo ${str//$del_substr/}
+    echo "${str//$del_substr/}"
 }
 
 
@@ -611,6 +677,19 @@ AptInstall(){
 	apt-get autoclean
 }
 
+writeAptMirrors(){
+	isVariabelDeclared $1;isFalse
+	isVariabelDeclared $2;isFalse
+
+	newPtr ref_str_mirrors=$1
+	newPtr ref_file_mirros=$2
+
+	arrayMap ref_str_mirrors mirror index '{
+		local file_mirror=${ref_file_mirros[$index]}
+		WriterFile $mirror $file_mirror
+	}'
+}
+
 ConfigureSourcesListByScript(){
 	if [ $# -lt 1 ]; then return 1; fi
 
@@ -621,6 +700,7 @@ ConfigureSourcesListByScript(){
 	arrayMap ref_scripts_link script 'Wget -O- -q "$script" | bash - '
 	
 }
+
 
 getAptKeys(){
 	if [ $# -lt 1 ] || [ $(isStrEmpty "$1") ] ; then return 1; fi

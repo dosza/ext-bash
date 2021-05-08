@@ -16,6 +16,10 @@ testArraySlice(){
 
     arraySlice array 0 5 subarray
     assertEquals "${subarray[*]}" "0 2 4 6 8"
+
+    arraySlice array 2 subarray
+    assertEquals "${subarray[*]}" "4 6 8 10"
+    
     array=("make -j3" "bzImage" "make modules" "make install")
     arraySlice array  0 2 subarray
     assertEquals "${subarray[0]}" "make -j3" && assertEquals "${subarray[1]}" "bzImage"
@@ -43,6 +47,7 @@ testArrayFilter(){
     local matchDNames=()
 
     arrayFilter numbers number pares '((number % 2 == 0))'
+
     assertEquals "${pares[*]}" "358 360 362 364 366 368"
 
     arrayFilter numbers number impares '{
@@ -52,9 +57,11 @@ testArrayFilter(){
     assertEquals "${impares[*]}" "357 359 361 363 365 367"
 
     arrayFilter  names name matchDNames 'echo "$name" | grep ^D>/dev/null'
+   
     assertEquals "${matchDNames[*]}" "Daniel Davros"
-
-    arrayFilter  names name index matchDNames 'echo "${name[index]}" | grep ^D>/dev/null'
+    
+    arrayFilter  names name index matchDNames 'echo ${names[$index]} | grep ^D>/dev/null'
+     echo "tesfails names name index"; echo ${matchDNames[*]};read
     assertEquals "${matchDNames[*]}" "Daniel Davros"
 }
 
