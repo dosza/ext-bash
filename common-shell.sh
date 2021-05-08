@@ -146,20 +146,11 @@ arrayFilter(){
 
 	case $# in 
 		4)
-			isVariabelDeclared $1
+			isVariableArray $1 && isVariableArray $3
 			isFalse
-	
-			newPtr refArray=$1
-			isVariabelDeclared $3
-			isFalse
-
-
-			
-
+			newPtr refArray=$1			
 			newPtr refFilter=$3
 			refFilter=()
-	
-
 			eval "for _filterIdx in ${!refArray[*]};do  
 				$2=\${refArray[\$_filterIdx]}
 				$4
@@ -175,12 +166,9 @@ arrayFilter(){
 			
 		;;
 		5)
-			isVariabelDeclared $1
+			isVariableArray $1 && isVariableArray $4
 			isFalse
 			newPtr refArray=$1
-
-			isVariabelDeclared $4
-			isFalse
 			newPtr refFilter=$4
 
 			refFilter=()

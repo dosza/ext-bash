@@ -5,7 +5,7 @@ source ./get-shunit2
 testArrayToSTring(){
     local array=({0..10..2})
     local str="0 2 4 6 8 10"
-    assertEquals "$(arrayToString array)" "$str"
+    assertEquals  "$str" "$(arrayToString array)" 
 }
 
 testArraySlice(){
@@ -13,10 +13,10 @@ testArraySlice(){
     local subarray=()
 
     arraySlice array 0 5 subarray
-    assertEquals "${subarray[*]}" "0 2 4 6 8"
+    assertEquals  "0 2 4 6 8" "${subarray[*]}" 
 
     arraySlice array 2 subarray
-    assertEquals "${subarray[*]}" "4 6 8 10"
+    assertEquals  "4 6 8 10" "${subarray[*]}" 
     
     array=("make -j3" "bzImage" "make modules" "make install")
     arraySlice array  0 2 subarray
@@ -46,20 +46,20 @@ testArrayFilter(){
 
     arrayFilter numbers number pares '((number % 2 == 0))'
 
-    assertEquals "${pares[*]}" "358 360 362 364 366 368"
+    assertEquals "358 360 362 364 366 368" "${pares[*]}" 
 
     arrayFilter numbers number impares '{
         ((number %2 != 0))
     }'
 
-    assertEquals "${impares[*]}" "357 359 361 363 365 367"
+    assertEquals  "357 359 361 363 365 367" "${impares[*]}" 
 
     arrayFilter  names name matchDNames 'echo "$name" | grep ^D>/dev/null'
    
-    assertEquals "${matchDNames[*]}" "Daniel Davros"
+    assertEquals  "Daniel Davros" "${matchDNames[*]}"
 
     arrayFilter  names name index matchDNames 'echo ${names[$index]} | grep ^D>/dev/null'
-    assertEquals "${matchDNames[*]}" "Daniel Davros"
+    assertEquals  "Daniel Davros" "${matchDNames[*]}"
 }
 
 . $(which shunit2)
