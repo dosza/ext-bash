@@ -158,27 +158,21 @@ arrayFilter(){
 
 			newPtr refFilter=$3
 			refFilter=()
-			isVariableAssociativeArray $3
-			if [ $? = 0 ]; then 
-				eval "for  key_filter in ${!refArray[*]}
-			do 
-				$2=\${refArray[\$key_filter]}
+	
+
+			eval "for _filterIdx in ${!refArray[*]};do  
+				$2=\${refArray[\$_filterIdx]}
 				$4
-				if [ \$?  = 0 ]; then 
-					refFilter[\$key_filter]=\$$2
-				fi
-			done"
-
-			else
-
-				eval "for _filterIdx in ${!refArray[*]};do  
-					$2=\${refArray[\$_filterIdx]}
-					$4
-					if [ \$? = 0 ]; then 
+				if [ \$? = 0 ]; then 
+					isVariableAssociativeArray $3
+					if [ \$? != 0 ]; then
 						refFilter+=(\$$2)
-						fi
-					done" 
-			fi
+					else
+						refFilter[\$_filterIdx]=\$$2
+					fi
+				fi
+				done" 
+			
 		;;
 		5)
 			isVariabelDeclared $1
@@ -194,26 +188,21 @@ arrayFilter(){
 
 			#arrayFilter array iterator index filterD '{commands}'
 			#arrayFilter packages pack index filter '{...}'
-			isVariableAssociativeArray $4
-			if [ $? = 0 ]; then 
-				eval "for  $3 in ${!refArray[*]}
-				do 
-					$2=\${refArray[\$$3]}
-					$5
-					if [ \$?  = 0 ]; then 
+
+			eval "for  $3 in ${!refArray[*]}
+			do 
+				$2=\${refArray[\$$3]}
+				$5
+				if [ \$?  = 0 ]; then 
+					isVariableAssociativeArray $4
+					if [ \$? != 0 ]; then 
+						refFilter+=(\$$2)
+					else
 						refFilter[\$$3]=\$$2
 					fi
-				done"
-			else
-				eval "for  $3 in ${!refArray[*]}
-				do 
-					$2=\${refArray[\$$3]}
-					$5
-					if [ \$?  = 0 ]; then 
-						refFilter+=(\$$2)
-					fi
-				done"
-			fi
+				fi
+			done"
+		
 		;;
 	esac
 

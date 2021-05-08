@@ -5,8 +5,6 @@ source ./get-shunit2
 testArrayToSTring(){
     local array=({0..10..2})
     local str="0 2 4 6 8 10"
-    arrayToString 
-    assertFalse $?
     assertEquals "$(arrayToString array)" "$str"
 }
 
@@ -59,9 +57,8 @@ testArrayFilter(){
     arrayFilter  names name matchDNames 'echo "$name" | grep ^D>/dev/null'
    
     assertEquals "${matchDNames[*]}" "Daniel Davros"
-    
+
     arrayFilter  names name index matchDNames 'echo ${names[$index]} | grep ^D>/dev/null'
-     echo "tesfails names name index"; echo ${matchDNames[*]};read
     assertEquals "${matchDNames[*]}" "Daniel Davros"
 }
 
