@@ -76,10 +76,8 @@ arraySlice(){
 
 	case $# in 
 		3 )
-			echo $*
 			isVariabelDeclared $3
-			isFalse
-				
+			isFalse	
 			newPtr ref_ret_array_sliced=$3
 			ref_ret_array_sliced=("${ref_array_sliced[@]:$2}")
 		;;
@@ -127,7 +125,6 @@ arrayMap(){
 	
 	isVariabelDeclared $1
 	isFalse
-
 	newPtr refMap=$1
 
 	case $# in
@@ -150,19 +147,24 @@ arrayFilter(){
 			isFalse
 			newPtr refArray=$1			
 			newPtr refFilter=$3
+
+
 			refFilter=()
-			eval "for _filterIdx in ${!refArray[*]};do  
+				
+			eval "isVariableAssociativeArray $3
+			if [ \$? != 0  ]; then 
+				_appendArrayFiltered(){ refFilter+=(\$$2) ; }
+			else
+				_appendArrayFiltered(){ refFilter[\$$3]=\$$2 ; }
+			fi
+
+			for _filterIdx in ${!refArray[*]};do  
 				$2=\${refArray[\$_filterIdx]}
 				$4
 				if [ \$? = 0 ]; then 
-					isVariableAssociativeArray $3
-					if [ \$? != 0 ]; then
-						refFilter+=(\$$2)
-					else
-						refFilter[\$_filterIdx]=\$$2
-					fi
+					_appendArrayFiltered
 				fi
-				done" 
+			done" 
 			
 		;;
 		5)
@@ -177,23 +179,25 @@ arrayFilter(){
 			#arrayFilter array iterator index filterD '{commands}'
 			#arrayFilter packages pack index filter '{...}'
 
-			eval "for  $3 in ${!refArray[*]}
+			eval "isVariableAssociativeArray $4
+			if [ \$? != 0  ]; then 
+				_appendArrayFiltered(){ refFilter+=(\$$2) ; }
+			else
+				_appendArrayFiltered(){ refFilter[\$$3]=\$$2 ; }
+			fi
+
+				for  $3 in ${!refArray[*]}
 			do 
 				$2=\${refArray[\$$3]}
 				$5
 				if [ \$?  = 0 ]; then 
-					isVariableAssociativeArray $4
-					if [ \$? != 0 ]; then 
-						refFilter+=(\$$2)
-					else
-						refFilter[\$$3]=\$$2
-					fi
+					_appendArrayFiltered
 				fi
 			done"
 		
 		;;
 	esac
-
+	unset _appendArrayFiltered
 }
 
 
