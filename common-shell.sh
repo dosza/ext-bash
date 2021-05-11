@@ -33,7 +33,7 @@ APT_LOCKS=(
 shopt  -s expand_aliases
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
-alias WARM_ERROR_NETWORK='if [ $? != 0 ]; then echo "possible network instability!!";exit 1;fi'
+alias WARM_ERROR_NETWORK_AND_EXIT_AND_EXIT='if [ $? != 0 ]; then echo "possible network instability!!";exit 1;fi'
 
 
 isVariableArray(){
@@ -186,7 +186,7 @@ arrayFilter(){
 				_appendArrayFiltered(){ refFilter[\$$3]=\$$2 ; }
 			fi
 
-				for  $3 in ${!refArray[*]}
+			for  $3 in ${!refArray[*]}
 			do 
 				$2=\${refArray[\$$3]}
 				$5
@@ -508,7 +508,7 @@ WriterFile(){
 	if [ $# = 2 ]; then
 		local filename="$1"
 
-		isVariabelDeclared $2
+		isVariableArray $2
 		if [ $? != 0 ]; then
 			return 1
 		fi
@@ -528,7 +528,7 @@ WriterFileln(){
 	if [ $# = 2 ]; then
 		local filename="$1"
 
-		isVariabelDeclared $2
+		isVariableArray $2
 		isFalse
 		
 
@@ -552,7 +552,7 @@ AppendFile(){
 	if [ $# = 2 ]; then
 		local filename="$1"
 
-		isVariabelDeclared $2
+		isVariableArray $2
 		isFalse
 		
 
@@ -569,7 +569,7 @@ AppendFileln(){
 	if [ $# = 2 ]; then
 		local filename="$1"
 
-		isVariabelDeclared $2
+		isVariableArray $2
 		isFalse
 		
 
@@ -607,10 +607,7 @@ Wget(){
 	wget $wget_opts $*
 	if [ $? != 0 ]; then
 		wget $wget_opts $*
-		if [ $? != 0 ]; then 
-			echo "possible network instability! Try later!"
-			exit 1
-		fi
+		WARM_ERROR_NETWORK_AND_EXIT
 	fi
 }
 
@@ -649,18 +646,15 @@ AptInstall(){
 	apt-get install $* ${apt_opts[*]}
 	if [ "$?" != "0" ]; then
 		apt-get install $* ${apt_opts[*]} ${apt_opts_err[*]}
-		if [ $? != 0 ]; then 
-			echo "possible network instability! Try later!"
-			exit 1
-		fi
+		WARM_ERROR_NETWORK_AND_EXIT
 	fi
 	apt-get clean
 	apt-get autoclean
 }
 
 writeAptMirrors(){
-	isVariabelDeclared $1;isFalse
-	isVariabelDeclared $2;isFalse
+	isVariableArray $1 && isVariableArray $2
+	isFalse
 
 	newPtr ref_str_mirrors=$1
 	newPtr ref_file_mirros=$2
@@ -674,7 +668,7 @@ writeAptMirrors(){
 ConfigureSourcesListByScript(){
 	if [ $# -lt 1 ]; then return 1; fi
 
-	isVariabelDeclared $1
+	isVariableArray $1
 	isFalse
 
 	newPtr ref_scripts_link=$1
@@ -686,7 +680,7 @@ ConfigureSourcesListByScript(){
 getAptKeys(){
 	if [ $# -lt 1 ] || [ $(isStrEmpty "$1") ] ; then return 1; fi
 
-	isVariabelDeclared $1
+	isVariableArray $1
 	newPtr ref_apt_keys=$1
 	arrayMap ref_apt_keys key 'Wget -0q- "$key" | apt-key add - '
 	
