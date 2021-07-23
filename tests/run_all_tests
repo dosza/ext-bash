@@ -1,0 +1,7 @@
+#!/bin/bash
+for i in $(ls *.sh); do
+	bash $i
+	if [ $? != 0 ]; then 
+		exit $?
+	fi
+done

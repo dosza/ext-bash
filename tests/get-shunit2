@@ -1,0 +1,17 @@
+#!/bin/bash
+source ../common-shell.sh
+if [ "$(which shunit2)" = "" ]; then
+	echo "missing shunit2"
+	if [  "$(which wget)" = "" ]; then
+		echo "try download manual in https://github.com/kward/shunit2/archive/master.zip, unzip and add folder in PATH"
+		
+	else
+		echo "trying  download shunit2 in /tmp/tmp_shunit2 folder!"
+		mkdir /tmp/tmp_shunit2
+		cd /tmp/tmp_shunit2
+		Wget "https://github.com/kward/shunit2/archive/master.zip"
+		unzip  -o "master.zip" 
+		export PATH=$PATH:$PWD/shunit2-master
+		cd "$OLDPWD"
+	fi
+fi
