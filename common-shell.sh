@@ -542,13 +542,14 @@ WriterFile(){
 		fi
 
 		newPtr stream=$2
-		arrayMap stream line index '{
-			if [ $index = 0 ]; then 
+		for(( _index_stream=0;_index_stream<${#stream[@]};_index_stream++));do
+			local line="${stream[_index_stream]}"
+			if [ $_index_stream = 0 ]; then 
 				printf "%b" "$line" > "$filename"
 			else
 				printf "%b" "$line" >> "$filename"
 			fi
-		}'
+		done
 	fi
 }
 
@@ -561,13 +562,14 @@ WriterFileln(){
 		
 
 		newPtr stream=$2
-		arrayMap stream line index '{
-			if [ $index = 0 ]; then 
+		for(( _index_stream=0; _index_stream<${#stream[@]}; _index_stream++ )); do 
+			local line="${stream[_index_stream]}"
+			if [ $_index_stream = 0 ]; then 
 				printf "%b\n" "$line" > "$filename"
 			else
 				printf "%b\n" "$line" >> "$filename"
 			fi
-		}'
+		done
 	fi
 }
 
@@ -586,7 +588,10 @@ AppendFile(){
 
 		newPtr stream=$2
 		if [  -e  $filename ]; then 
-			arrayMap stream line 'printf "%b" "$line" >> "$filename"'
+			for ((_index_stream=0;_index_stream<${#stream[*]};_index_stream++));do
+				local line="${stream[_index_stream]}"
+				printf "%b" "$line" >> "$filename"
+			done
 		else
 			echo "\"$filename\" does not exists!"
 		fi
@@ -603,7 +608,10 @@ AppendFileln(){
 
 		newPtr stream=$2
 		if [  -e  "$filename" ]; then 
-		arrayMap stream line 'printf "%b\n" "$line" >> "$filename"'
+			for ((_index_stream=0;_index_stream<${#stream[*]};_index_stream++));do
+				local line="${stream[$_index_stream]}"
+				printf "%b" "$line" >> "$filename"
+			done
 		else
 			echo "\"$filename\" does not exists!"
 		fi
