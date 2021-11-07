@@ -35,33 +35,10 @@ alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
 alias WARM_ERROR_NETWORK_AND_EXIT='if [ $? != 0 ]; then echo "possible network instability!!";exit 1;fi'
 
-
-CheckPackageDebIsInstalled(){
-	if [ "$1" = "" ]; then 
-		echo "Package cannot be empty"
-		return 2
-	fi
-	exec 2> /dev/null dpkg -s  "$1" | grep 'Status: install'  > /dev/null
+initArrayAsCommand(){
+	eval "$1=(`$2`)"
 }
-getCurrentDebianFrontend(){
-	tty | grep pts/[0-9] > /dev/null 
-	if [ $? = 0 ]; then
-		CheckPackageDebIsInstalled libgtk3-perl 
-		local is_gnome_apt_frontend_installed=$?
-		
-		CheckPackageDebIsInstalled "debconf-kde-helper"
-		local is_kde_apt_frontend_installed=$?
 
-
-		if [ $is_gnome_apt_frontend_installed = 0 ]; then 
-			export DEBIAN_FRONTEND=gnome
-		else 
-			if [ $is_kde_apt_frontend_installed = 0 ];then
-				export DEBIAN_FRONTEND=kde
-			fi
-		fi
-	fi
-}
 
 
 isVariableArray(){
@@ -695,9 +672,15 @@ writeAptMirrors(){
 	newPtr ref_str_mirrors=$1
 	newPtr ref_file_mirros=$2
 
+	echo "Writing mirrors ..."
 	arrayMap ref_str_mirrors mirror index '{
 		local file_mirror=${ref_file_mirros[$index]}
-		WriterFile $mirror $file_mirror
+		local mirror_str=(
+			"### THIS FILE IS AUTOMATICALLY CONFIGURED"
+			"###ou may comment out this entry, but any other modifications may be lost." 
+			"$mirror" 
+		)
+		WriterFile  $file_mirror mirror_str
 	}'
 }
 
@@ -708,17 +691,17 @@ ConfigureSourcesListByScript(){
 	isFalse
 
 	newPtr ref_scripts_link=$1
-	arrayMap ref_scripts_link script 'Wget -O- -q "$script" | bash - '
+	arrayMap ref_scripts_link script 'Wget -qO- "$script" | bash - '
 	
 }
 
-
 getAptKeys(){
-	if [ $# -lt 1 ] || [ $(isStrEmpty "$1") ] ; then return 1; fi
+	if [ $# -lt 1 ] || [ "$1" = "" ] ; then return 1; fi
 
 	isVariableArray $1
 	newPtr ref_apt_keys=$1
-	arrayMap ref_apt_keys key 'Wget -0q- "$key" | apt-key add - '
+	echo "Getting apt Keys ..."
+	arrayMap ref_apt_keys key 'Wget -qO- "$key" | apt-key add - '
 	
 }
 
@@ -744,3 +727,30 @@ isDebPackInstalled(){
 	fi
 }
 
+
+CheckPackageDebIsInstalled(){
+	if [ "$1" = "" ]; then 
+		echo "Package cannot be empty"
+		return 2
+	fi
+	exec 2> /dev/null dpkg -s  "$1" | grep 'Status: install'  > /dev/null
+}
+getCurrentDebianFrontend(){
+	tty | grep pts/[0-9] > /dev/null 
+	if [ $? = 0 ]; then
+		CheckPackageDebIsInstalled libgtk3-perl 
+		local is_gnome_apt_frontend_installed=$?
+		
+		CheckPackageDebIsInstalled "debconf-kde-helper"
+		local is_kde_apt_frontend_installed=$?
+
+
+		if [ $is_gnome_apt_frontend_installed = 0 ]; then 
+			export DEBIAN_FRONTEND=gnome
+		else 
+			if [ $is_kde_apt_frontend_installed = 0 ];then
+				export DEBIAN_FRONTEND=kde
+			fi
+		fi
+	fi
+}
