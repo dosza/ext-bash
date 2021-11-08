@@ -680,7 +680,7 @@ writeAptMirrors(){
 			"###ou may comment out this entry, but any other modifications may be lost." 
 			"$mirror" 
 		)
-		WriterFile  $file_mirror mirror_str
+		WriterFileln $file_mirror mirror_str
 	}'
 }
 
