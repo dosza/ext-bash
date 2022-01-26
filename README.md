@@ -43,6 +43,15 @@ New: Array Functions
 + arraySlice(array,offset,arraySliced) || arraySlice(array,offset,length,arraySliced)
 ---
 
+
+New: APT functions
+---
+This family call APT functions with -y and check erros param
++ AptInstall(args...) #install packages without need confirm action
++ getCurrentDebianFrontend() # set (if is possible) DEBIAN_FRONTEND=
++ getAptKeys(array_key_ref) # import apt keys to Apt from array of Urls: note
+
+
 ### sample:
 
 ```bash

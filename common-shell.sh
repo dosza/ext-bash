@@ -2,7 +2,7 @@
 #-------------------------------------------------------------------------------------------------#
 #Universidade federal de Mato Grosso (mater-alma)
 #Course: Science Computer
-#version: 0.2.0	
+#version: 0.2.2
 #Date: 12/11/2020
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
@@ -11,25 +11,55 @@
 #-------------------versions-------------------------------
 #v0.1.0 add support to write a array to file, get a file (with validation)
 #v0.2.0 add advanced support manipulation of string 
+#v0.2.1 add support:
+#		get len from string, from variable
+# 		check if array is assoative
+#		init Array as Command
+# 		add CheckPackageDebIsInstalled
+# 		add get
+# 		fixes: writeAptMirrors
+#		fixes getAptKeys
+#v0.2.2 add suport
+#	add WaitToAPTDpkg to wait and remove ${APT_LOCKS[*]}
+#	add MIN_COMMON_DEPS variable with apt/dpkg deps
+#	add GTK,KDE frontend variables package/deps:
+#		GTK_DEBIAN_FRONTEND_DEP, gtk frontend apt graphical
+#		KDE_DEBIAN_FRONTEND_DEP, kde frontend graphical
+#
+
 
 #GLOBAL VARIABLES
 #----ColorTerm
-export VERDE=$'\e[1;32m'
-export AMARELO=$'\e[01;33m'
-export SUBLINHADO=$'4'
-export NEGRITO=$'\e[1m'
-export VERMELHO=$'\e[1;31m'
-export VERMELHO_SUBLINHADO=$'\e[1;4;31m'
-export AZUL=$'\e[1;34m'
-export NORMAL=$'\e[0m'
-export BASH_TRUE=0
-export BASH_FALSE=1
+VERDE=$'\e[1;32m'
+AMARELO=$'\e[01;33m'
+SUBLINHADO=$'4'
+NEGRITO=$'\e[1m'
+VERMELHO=$'\e[1;31m'
+VERMELHO_SUBLINHADO=$'\e[1;4;31m'
+AZUL=$'\e[1;34m'
+NORMAL=$'\e[0m'
+BASH_TRUE=0
+BASH_FALSE=1
+INSTALL_DEBIAN_FRONTEND=0
+GTK_DEBIAN_FRONTEND_DEP="libgtk3-perl"
+KDE_DEBIAN_FRONTEND_DEP="debconf-kde-helper"
+
 APT_LOCKS=(
 	"/var/lib/dpkg/lock"
 	"/var/lib/apt/lists/lock"
 	"/var/cache/apt/archives/lock"
 	"/var/lib/dpkg/lock-frontend"
 )
+
+COMMON_MIN_DEPS=(
+	coreutils
+	sed 
+	gawk
+	psmisc
+)
+
+WGET_TIMEOUT=300
+
 shopt  -s expand_aliases
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
@@ -51,7 +81,7 @@ isVariableAssociativeArray(){
 
 len(){
 	isVariabelDeclared $1
-	if [ $? != 0 ]; then strLen "$1" ;return ;fi
+	[ $? != 0 ] && strLen "$1"  && return 
 
 	isVariableArray $1
 	if [ $? = 0 ]; then 
@@ -550,6 +580,17 @@ WriterFileln(){
 	fi
 }
 
+
+WriterFileFromStr(){
+	local filename="$1"
+	local stream="$2"
+
+	[ $#  -lt 2 ] || [ "$1" = "" ] &&  return 1
+		echo -e "$stream" > "$filename"
+}
+
+
+
 #Append a file if exists
 #$1 filename
 #$2 stream reference
@@ -608,15 +649,31 @@ InsertUniqueBlankLine(){
 
 IsUserRoot(){
 	if  [  "$(whoami)" = "root" ];then #impede que o script seja executado pelo root 
-		printf "Error: \"$1\" was designed  to run without root privileges\nExiting...\n" >&2 # >&2 is a file descriptor to /dev/stderror
+		printf "${VERMELHO}Error:${NORMAL} ${NEGRITO}$1${NORMAL} don't support running as root!!!\nExiting...\n" >&2 # >&2 is a file descriptor to /dev/stderror
 		exit 1
 	fi
 }
 
+#run wget and save data on refenciable variable
+#$1 is reference variable (  )
+#${@:2} is a url and other wget opts
+
+WgetToStdout(){
+	local wget_opts="-c --timeout=$WGET_TIMEOUT -qO-"
+	! isVariabelDeclared $1 && exit 1
+
+
+	newPtr ref_out=$1 
+	ref_out=`wget $wget_opts ${@:2}`
+	if [ $? != 0 ]; then 
+		ref_out=`wget $wget_opts ${@:2}`
+		WARM_ERROR_NETWORK_AND_EXIT
+	fi	
+}
 Wget(){
 	if [ $1 = "" ]; then echo "Wget needs a argument"; exit 1;fi
 	
-	local wget_opts="-c --timeout=300"
+	local wget_opts="-c --timeout=$WGET_TIMEOUT"
 	wget $wget_opts $*
 	if [ $? != 0 ]; then
 		wget $wget_opts $*
@@ -644,6 +701,10 @@ IsFileBusy(){
 	done
 }
 
+WaitToAPTDpkg(){
+	IsFileBusy apt ${APT_LOCKS[*]}
+	rm -f ${APT_LOCKS[*]}
+}
 #Essa instala um ou mais pacotes from apt 
 AptInstall(){
 	
@@ -654,10 +715,11 @@ AptInstall(){
 		echo "AptInstall requires arguments"
 		exit 1
 	fi
-	IsFileBusy apt ${APT_LOCKS[*]}
+	WaitToAPTDpkg
 	apt-get update
 	apt-get install $* ${apt_opts[*]}
 	if [ "$?" != "0" ]; then
+		WaitToAPTDpkg
 		apt-get install $* ${apt_opts[*]} ${apt_opts_err[*]}
 		WARM_ERROR_NETWORK_AND_EXIT
 	fi
@@ -726,6 +788,15 @@ isDebPackInstalled(){
 		return 0;
 	fi
 }
+getDebPackVersion(){
+	CheckPackageDebIsInstalled "$1"
+	if [ $? = 0 ]; then
+		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g' 
+	else
+		echo ""
+		return 1;
+	fi
+}
 
 
 CheckPackageDebIsInstalled(){
@@ -738,12 +809,11 @@ CheckPackageDebIsInstalled(){
 getCurrentDebianFrontend(){
 	tty | grep pts/[0-9] > /dev/null 
 	if [ $? = 0 ]; then
-		CheckPackageDebIsInstalled libgtk3-perl 
+		CheckPackageDebIsInstalled "$GTK_DEBIAN_FRONTEND_DEP" 
 		local is_gnome_apt_frontend_installed=$?
 		
-		CheckPackageDebIsInstalled "debconf-kde-helper"
+		CheckPackageDebIsInstalled "$KDE_DEBIAN_FRONTEND_DEP"
 		local is_kde_apt_frontend_installed=$?
-
 
 		if [ $is_gnome_apt_frontend_installed = 0 ]; then 
 			export DEBIAN_FRONTEND=gnome
@@ -752,5 +822,12 @@ getCurrentDebianFrontend(){
 				export DEBIAN_FRONTEND=kde
 			fi
 		fi
+
+		if [ $is_kde_apt_frontend_installed != 0 ] && [ $is_gnome_apt_frontend_installed != 0 ] && [ $INSTALL_DEBIAN_FRONTEND = 0 ]; then 
+			COMMON_MIN_DEPS+=($GTK_DEBIAN_FRONTEND_DEP)
+			INSTALL_DEBIAN_FRONTEND=1
+		fi
+
 	fi
+
 }
