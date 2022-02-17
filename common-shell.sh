@@ -703,7 +703,55 @@ IsFileBusy(){
 	done
 }
 
-WaitToAPTDpkg(){
+
+#Retorna verdadeiro se o pacote $1 está instalado
+CheckPackageDebIsInstalled(){
+	if [ "$1" = "" ]; then 
+		echo "Package cannot be empty"
+		return 2
+	fi
+	exec 2> /dev/null dpkg -s  "$1" | grep 'Status: install'  > /dev/null
+}
+
+getDebPackVersion(){
+	CheckPackageDebIsInstalled "$1"
+	if [ $? = 0 ]; then
+		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g' 
+	else
+		echo ""
+		return 1;
+	fi
+}
+
+
+getCurrentDebianFrontend(){
+	tty | grep pts/[0-9] > /dev/null 
+	if [ $? = 0 ]; then
+		CheckPackageDebIsInstalled "$GTK_DEBIAN_FRONTEND_DEP" 
+		local is_gnome_apt_frontend_installed=$?
+		
+		CheckPackageDebIsInstalled "$KDE_DEBIAN_FRONTEND_DEP"
+		local is_kde_apt_frontend_installed=$?
+
+		if [ $is_gnome_apt_frontend_installed = 0 ]; then 
+			export DEBIAN_FRONTEND=gnome
+		else 
+			if [ $is_kde_apt_frontend_installed = 0 ];then
+				export DEBIAN_FRONTEND=kde
+			fi
+		fi
+
+		if [ $is_kde_apt_frontend_installed != 0 ] && [ $is_gnome_apt_frontend_installed != 0 ] && 
+		[ $INSTALL_DEBIAN_FRONTEND = 0 ]; then 
+			COMMON_MIN_DEPS+=($GTK_DEBIAN_FRONTEND_DEP)
+			INSTALL_DEBIAN_FRONTEND=1
+		fi
+
+	fi
+
+}
+
+waitAptDpkg(){
 	IsFileBusy apt ${APT_LOCKS[*]}
 	rm -f ${APT_LOCKS[*]}
 }
@@ -742,6 +790,7 @@ writeAptMirrors(){
 	newPtr ref_file_mirros=$2
 
 	echo "Writing mirrors ..."
+	
 	arrayMap ref_str_mirrors mirror index '{
 		local file_mirror=${ref_file_mirros[$index]}
 		local mirror_str=(
@@ -781,60 +830,3 @@ ConfigureSourcesList(){
 }
 
 
-#Retorna verdadeiro se o pacote $1 está instalado
-isDebPackInstalled(){
-	if [ "$1" = "" ]; then
-		echo "missing package name";
-		return 0;
-	fi
-	exec 2> /dev/null dpkg -s "$1" | grep 'Status: install' > /dev/null #exec 2 redireciona a saída do stderror para /dev/null
-	
-	if [ $?  = 0 ]; then
-		return 1
-	else
-		return 0;
-	fi
-}
-getDebPackVersion(){
-	CheckPackageDebIsInstalled "$1"
-	if [ $? = 0 ]; then
-		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g' 
-	else
-		echo ""
-		return 1;
-	fi
-}
-
-
-CheckPackageDebIsInstalled(){
-	if [ "$1" = "" ]; then 
-		echo "Package cannot be empty"
-		return 2
-	fi
-	exec 2> /dev/null dpkg -s  "$1" | grep 'Status: install'  > /dev/null
-}
-getCurrentDebianFrontend(){
-	tty | grep pts/[0-9] > /dev/null 
-	if [ $? = 0 ]; then
-		CheckPackageDebIsInstalled "$GTK_DEBIAN_FRONTEND_DEP" 
-		local is_gnome_apt_frontend_installed=$?
-		
-		CheckPackageDebIsInstalled "$KDE_DEBIAN_FRONTEND_DEP"
-		local is_kde_apt_frontend_installed=$?
-
-		if [ $is_gnome_apt_frontend_installed = 0 ]; then 
-			export DEBIAN_FRONTEND=gnome
-		else 
-			if [ $is_kde_apt_frontend_installed = 0 ];then
-				export DEBIAN_FRONTEND=kde
-			fi
-		fi
-
-		if [ $is_kde_apt_frontend_installed != 0 ] && [ $is_gnome_apt_frontend_installed != 0 ] && [ $INSTALL_DEBIAN_FRONTEND = 0 ]; then 
-			COMMON_MIN_DEPS+=($GTK_DEBIAN_FRONTEND_DEP)
-			INSTALL_DEBIAN_FRONTEND=1
-		fi
-
-	fi
-
-}
