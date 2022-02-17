@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------------------------#
 #Universidade federal de Mato Grosso (mater-alma)
 #Course: Science Computer
-#version: 0.2.2
-#Date: 12/11/2020
+#version: 0.2.3
+#Date: 17/12/2022
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
 
@@ -26,6 +26,7 @@
 #		GTK_DEBIAN_FRONTEND_DEP, gtk frontend apt graphical
 #		KDE_DEBIAN_FRONTEND_DEP, kde frontend graphical
 #
+#v0.2.3 add $SLEEP_TIME variable and in  IsFileBusy sleep $SLEEP_TIME s
 
 
 #GLOBAL VARIABLES
@@ -38,11 +39,13 @@ VERMELHO=$'\e[1;31m'
 VERMELHO_SUBLINHADO=$'\e[1;4;31m'
 AZUL=$'\e[1;34m'
 NORMAL=$'\e[0m'
+GTK_DEBIAN_FRONTEND_DEP="libgtk3-perl"
+KDE_DEBIAN_FRONTEND_DEP="debconf-kde-helper"
 BASH_TRUE=0
 BASH_FALSE=1
 INSTALL_DEBIAN_FRONTEND=0
-GTK_DEBIAN_FRONTEND_DEP="libgtk3-perl"
-KDE_DEBIAN_FRONTEND_DEP="debconf-kde-helper"
+WGET_TIMEOUT=300
+SLEEP_TIME=0.2s
 
 APT_LOCKS=(
 	"/var/lib/dpkg/lock"
@@ -57,8 +60,6 @@ COMMON_MIN_DEPS=(
 	gawk
 	psmisc
 )
-
-WGET_TIMEOUT=300
 
 shopt  -s expand_aliases
 alias newPtr='declare -n'
@@ -698,6 +699,7 @@ IsFileBusy(){
 			echo "Wait for $1..."
 			msg=1;
 		fi
+		sleep $SLEEP_TIME
 	done
 }
 
