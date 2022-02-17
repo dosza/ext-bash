@@ -707,6 +707,7 @@ WaitToAPTDpkg(){
 	IsFileBusy apt ${APT_LOCKS[*]}
 	rm -f ${APT_LOCKS[*]}
 }
+
 #Essa instala um ou mais pacotes from apt 
 AptInstall(){
 	
@@ -717,14 +718,18 @@ AptInstall(){
 		echo "AptInstall requires arguments"
 		exit 1
 	fi
-	WaitToAPTDpkg
+
+	waitAptDpkg
 	apt-get update
 	apt-get install $* ${apt_opts[*]}
+
 	if [ "$?" != "0" ]; then
-		WaitToAPTDpkg
+		waitAptDpkg
 		apt-get install $* ${apt_opts[*]} ${apt_opts_err[*]}
 		WARM_ERROR_NETWORK_AND_EXIT
 	fi
+
+
 	apt-get clean
 	apt-get autoclean
 }
