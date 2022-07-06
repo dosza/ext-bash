@@ -847,7 +847,10 @@ ConfigureSourcesListByScript(){
 getAptKeys(){
 	if [ $# -lt 1 ] || [ "$1" = "" ] ; then return 1; fi
 
-	isVariableArray $1
+	if ! isVariableArray $1; then
+		return $BASH_FALSE
+	fi
+
 	newPtr ref_apt_keys=$1
 	echo "Getting apt Keys ..."
 	arrayMap ref_apt_keys key 'Wget -qO- "$key" | apt-key add - '
