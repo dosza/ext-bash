@@ -62,5 +62,28 @@ testArrayFilter(){
     assertEquals  "Daniel Davros" "${matchDNames[*]}"
 }
 
+
+testForEach(){
+    local expected_array_numbers=({3..100..5})
+    local array_numbers=({2..100..5})
+
+    inc(){
+        local current_number=$1
+        ((current_number++))
+        echo $current_number
+    }
+
+    forEach array_numbers number 'number=$(inc $number)'
+    assertEquals '[Running forEach without index declaration]' "${expected_array_numbers[*]}" "${array_numbers[*]}"
+
+    array_numbers=({2..100..5})
+    forEach array_numbers number index '
+        printf "%s " "[$index]"
+        number=$(inc $number)'
+    assertEquals '[Running forEach with  index declaration]' "${expected_array_numbers[*]}" "${array_numbers[*]}"
+
+
+}
+
 . $(which shunit2)
 

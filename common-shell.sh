@@ -27,8 +27,8 @@
 #		KDE_DEBIAN_FRONTEND_DEP, kde frontend graphical
 #
 #v0.2.3 add $SLEEP_TIME variable and in  IsFileBusy sleep $SLEEP_TIME s
-
-
+#v0.3.0:
+# add forEach function
 #GLOBAL VARIABLES
 #----ColorTerm
 VERDE=$'\e[1;32m'
@@ -97,8 +97,39 @@ len(){
 isVariabelDeclared(){
 	if [ "$1" = "" ]; then return 1; fi
 
-	declare -p "$1" &> /dev/null
+	declare -p "$1"  &> /dev/null
 	return $?
+}
+
+#forEach is a function similar to arrayMap, but the iterator is a reference to the current element of the array
+
+#form 1:
+#$1 is array name
+#$2 is iterator name
+#$3 is a string with command or block commands
+
+##form 2:
+#$1 is array name
+#$2 is iterator name
+#$3 is index or key for associative Arrays
+#$4 is a string with command or block commands
+forEach(){
+    if [ $# -lt 3 ] || [ 4 -lt $# ]; then
+        return;
+    fi;
+    if ! isVariableArray $1; then
+    	return $BASH_FALSE
+    fi
+    newPtr refArrayToforEach=$1;
+
+    case $# in 
+        3)
+            eval "for _forEachIdx in ${!refArrayToforEach[*]};do newPtr $2=refArrayToforEach[\$_forEachIdx]; $3; done"
+        ;;
+        4)
+            eval "for $3 in ${!refArrayToforEach[*]}; do newPtr $2=refArrayToforEach[\$$3]; $4; done"
+        ;;
+    esac
 }
 
 arraySlice(){
