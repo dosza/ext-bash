@@ -73,11 +73,11 @@ initArrayAsCommand(){
 
 
 isVariableArray(){
-	declare -p $1 | grep '^declare -[aA]' > /dev/null
+	declare -p $1 2>/dev/null | grep -q '^declare -[aA]' &>/dev/null
 }
 
 isVariableAssociativeArray(){
-	declare -p $1 | grep '^declare -A' > /dev/null
+	declare -p $1 2>/dev/null | grep -q '^declare -A' &> /dev/null
 }
 
 len(){
