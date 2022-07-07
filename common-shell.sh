@@ -64,6 +64,7 @@ COMMON_MIN_DEPS=(
 shopt  -s expand_aliases
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
+alias returnFalse='return $BASH_FALSE'
 alias WARM_ERROR_NETWORK_AND_EXIT='if [ $? != 0 ]; then echo "possible network instability!!";exit 1;fi'
 
 initArrayAsCommand(){
@@ -73,11 +74,15 @@ initArrayAsCommand(){
 
 
 isVariableArray(){
-	declare -p $1 2>/dev/null | grep -q '^declare -[aA]' &>/dev/null
+	local query_var=$(declare -p $1 2>/dev/null)
+	local array_regex_pattern='^declare -[aA]' 
+	[[ $query_var =~ $array_regex_pattern ]]
 }
 
 isVariableAssociativeArray(){
-	declare -p $1 2>/dev/null | grep -q '^declare -A' &> /dev/null
+	local query_var=$(declare -p $1 2>/dev/null)
+	local array_regex_pattern='^declare -A'
+	[[ $query_var =~ $array_regex_pattern ]]
 }
 
 len(){
