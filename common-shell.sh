@@ -138,22 +138,22 @@ forEach(){
 arraySlice(){
 	if [ "$1" = "" ] || [ $# -lt 3 ]; then return 1 ; fi
 
-	isVariabelDeclared $1
-	isFalse
+	! isVariabelDeclared $1 && returnFalse
+	
 
 	newPtr ref_array_sliced=$1
 
 
 	case $# in 
 		3 )
-			isVariabelDeclared $3
-			isFalse	
+			! isVariabelDeclared $3 && returnFalse
+
 			newPtr ref_ret_array_sliced=$3
 			ref_ret_array_sliced=("${ref_array_sliced[@]:$2}")
 		;;
 		4 )
-			isVariabelDeclared $4
-			isFalse
+			! isVariabelDeclared $4 && returnFalse
+	
 
 			newPtr ref_ret_array_sliced=$4
 			ref_ret_array_sliced=("${ref_array_sliced[@]:$2:$3}")
@@ -165,8 +165,7 @@ arraySlice(){
 arrayToString(){
 	if [ "$1" = "" ] ; then return 1 ; fi
 
-	isVariabelDeclared $1
-	isFalse
+	! isVariabelDeclared $1 &
 
 	newPtr array_str=$1
 	echo "${array_str[*]}"
@@ -193,8 +192,7 @@ arrayMap(){
 
 	if [ $# -lt 3 ] || [ 4 -lt $# ] ; then return ; fi 
 	
-	isVariabelDeclared $1
-	isFalse
+	! isVariabelDeclared $1 && returnFalse
 	newPtr refMap=$1
 
 	case $# in
@@ -213,8 +211,9 @@ arrayFilter(){
 
 	case $# in 
 		4)
-			isVariableArray $1 && isVariableArray $3
-			isFalse
+			if ! ( isVariableArray $1 && isVariableArray $3 ); then 
+				returnFalse; 
+			fi
 			newPtr refArray=$1			
 			newPtr refFilter=$3
 
@@ -238,8 +237,10 @@ arrayFilter(){
 			
 		;;
 		5)
-			isVariableArray $1 && isVariableArray $4
-			isFalse
+			if ! isVariableArray $1 && isVariableArray $4; then 
+				returnFalse
+			fi
+			
 			newPtr refArray=$1
 			newPtr refFilter=$4
 
@@ -424,8 +425,8 @@ Split (){
 		return 1
 	fi
 
-	isVariabelDeclared $3
-	isFalse
+	! isVariabelDeclared $3 && returnFalse
+	
 
 
 	local str="$1"
@@ -448,8 +449,7 @@ splitStr(){
         return 1
     fi
 
-    isVariabelDeclared $3
-	isFalse
+    ! isVariabelDeclared $3 && returnFalse
 		
 
     local str="$1"
@@ -578,10 +578,7 @@ WriterFile(){
 	if [ $# = 2 ]; then
 		local filename="$1"
 
-		isVariableArray $2
-		if [ $? != 0 ]; then
-			return 1
-		fi
+		! isVariableArray $2 && returnFalse
 
 		newPtr stream=$2
 		for(( _index_stream=0;_index_stream<${#stream[@]};_index_stream++));do
@@ -599,8 +596,7 @@ WriterFileln(){
 	if [ $# = 2 ]; then
 		local filename="$1"
 
-		isVariableArray $2
-		isFalse
+		! isVariableArray $2 && returnFalse
 		
 
 		newPtr stream=$2
@@ -635,9 +631,7 @@ AppendFile(){
 	if [ $# = 2 ]; then
 		local filename="$1"
 
-		isVariableArray $2
-		isFalse
-		
+		! isVariableArray $2 && returnFalse
 
 		newPtr stream=$2
 		if [  -e  $filename ]; then 
@@ -655,8 +649,7 @@ AppendFileln(){
 	if [ $# = 2 ]; then
 		local filename="$1"
 
-		isVariableArray $2
-		isFalse
+		! isVariableArray $2 && returnFalse
 		
 
 		newPtr stream=$2
@@ -709,8 +702,7 @@ Wget(){
 	if [ $1 = "" ]; then echo "Wget needs a argument"; exit 1;fi
 	
 	local wget_opts="-c --timeout=$WGET_TIMEOUT"
-	wget $wget_opts $*
-	if [ $? != 0 ]; then
+	if ! wget $wget_opts $*; then
 		wget $wget_opts $*
 		WARM_ERROR_NETWORK_AND_EXIT
 	fi
@@ -817,8 +809,10 @@ AptInstall(){
 }
 
 writeAptMirrors(){
-	isVariableArray $1 && isVariableArray $2
-	isFalse
+	if !( isVariableArray $1 && isVariableArray $2); then 
+		returnFalse
+	fi
+
 
 	newPtr ref_str_mirrors=$1
 	newPtr ref_file_mirros=$2
@@ -839,8 +833,7 @@ writeAptMirrors(){
 ConfigureSourcesListByScript(){
 	if [ $# -lt 1 ]; then return 1; fi
 
-	isVariableArray $1
-	isFalse
+	! isVariableArray $1 && returnFalse
 
 	newPtr ref_scripts_link=$1
 	arrayMap ref_scripts_link script 'Wget -qO- "$script" | bash - '
@@ -850,9 +843,7 @@ ConfigureSourcesListByScript(){
 getAptKeys(){
 	if [ $# -lt 1 ] || [ "$1" = "" ] ; then return 1; fi
 
-	if ! isVariableArray $1; then
-		return $BASH_FALSE
-	fi
+	! isVariableArray $1 && returnFalse
 
 	newPtr ref_apt_keys=$1
 	echo "Getting apt Keys ..."
