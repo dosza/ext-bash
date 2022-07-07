@@ -290,11 +290,8 @@ strToUpperCase(){
 }
 
 isStrEqual(){
-	if [ "$1" = "$2" ]; then
-		echo $BASH_TRUE
-	else
-		echo $BASH_FALSE
-	fi
+	[[ "$1" = "$2" ]]
+	echo $?
 }
 
 isStrEmpty(){
@@ -458,10 +455,7 @@ splitStr(){
     declare -n array_Splitted_ref="$3"
     array_Splitted_ref=()
 
-    echo "$1" | grep "$2" > /dev/null
-
-    if [ $? = 0 ] ; then
-
+     if [[ "$1" =~ "$2" ]]; then 
         for ((i=0 ;i  <= $(strLen "$str") ;i++)); do
 
             local current_token="$(strGetCurrentChar "$str" $i)"
@@ -498,17 +492,14 @@ changeDirectory(){
 
 # Verify se user is sudo member (return  1 false, 0 to true 	yttttt)
 isUsersSudo(){
-	local ret=0
 	if [ "$1" = "" ]; then 
 		echo "$1 can't be empty"
-		ret=1
+		returnFalse
 	fi
 
-	cat /etc/group | grep sudo | grep $1 /dev/null 2>&1
-	if [ $? != 0 ]; then
-		ret=$?
-	fi
-	return $ret
+ 	local sudo_line=$(grep sudo  /etc/group)
+ 	local sudo_regex="($1)"
+ 	[[ $sudo_line =~ $sudo_regex ]]
 
 }
 # searchLineinFile(FILE *fp, char * str )
@@ -540,12 +531,12 @@ GenerateScapesStr(){
 		echo "There is no string to scape!"; return 1
 	fi
 
-	echo "$1" | grep '\\' > /dev/null
-	if [  $? = 0 ]; then  # se a string já está com com escape, retorne a string 
+	local regex_double_invert_bar='\\'
+	if [[ "$1" =~ $regex_double_invert_bar ]] ; then  # se a string já está com com escape, retorne a string 
 		echo "$1"; return 
 	fi
 
-	echo "$1" | sed 's|\/|\\\/|g'  | sed "s|\.|\\\.|g" | sed "s|\-|\\\-|g" | sed "s|\"|\\\"|g" | sed "s/'/\\\'/g"
+	echo "$1" | sed "s|\/|\\\/|g;s|\.|\\\.|g;s|\-|\\\-|gs|\"|\\\"|g;s/'/\\\'/g"
 }
 
 
@@ -736,13 +727,14 @@ CheckPackageDebIsInstalled(){
 		echo "Package cannot be empty"
 		return 2
 	fi
-	exec 2> /dev/null dpkg -s  "$1" | grep 'Status: install'  > /dev/null
+	local regex_install='Status: install'
+	[[ "$(exec 2> /dev/null dpkg -s  "$1")" =~ $regex_install ]]
 }
 
 getDebPackVersion(){
-	CheckPackageDebIsInstalled "$1"
-	if [ $? = 0 ]; then
+	if CheckPackageDebIsInstalled "$1"; then 
 		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g' 
+		[[ "$(exec 2> /dev/null dpkg -s  "$1")" =~ $regex_install ]]
 	else
 		echo ""
 		return 1;
@@ -751,8 +743,7 @@ getDebPackVersion(){
 
 
 getCurrentDebianFrontend(){
-	tty | grep pts/[0-9] > /dev/null 
-	if [ $? = 0 ]; then
+	if tty | grep pts/[0-9] > /dev/null ; then 
 		CheckPackageDebIsInstalled "$GTK_DEBIAN_FRONTEND_DEP" 
 		local is_gnome_apt_frontend_installed=$?
 		
@@ -795,9 +786,8 @@ AptInstall(){
 
 	waitAptDpkg
 	apt-get update
-	apt-get install $* ${apt_opts[*]}
+	if ! apt-get install $* ${apt_opts[*]}; then 
 
-	if [ "$?" != "0" ]; then
 		waitAptDpkg
 		apt-get install $* ${apt_opts[*]} ${apt_opts_err[*]}
 		WARM_ERROR_NETWORK_AND_EXIT
