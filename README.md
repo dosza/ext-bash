@@ -41,6 +41,8 @@ New: Array Functions
 + arrayFilter(array, item, filtersItens, '[conditions]')
 + arrayToString(array)
 + arraySlice(array,offset,arraySliced) || arraySlice(array,offset,length,arraySliced)
++ forEach(array,item '{commands...}') //execute one or more commands, on each item in array, forEach is a function similar to arrayMap, but the iterator is a reference to the current element of the array
++	initArrayAsCommand(array, '{commands'}) //init an array as output of '{ commands }'
 ---
 
 
@@ -50,6 +52,7 @@ This family call APT functions with -y and check erros param
 + AptInstall(args...) #install packages without need confirm action
 + getCurrentDebianFrontend() # set (if is possible) DEBIAN_FRONTEND=
 + getAptKeys(array_key_ref) # import apt keys to Apt from array of Urls: note
++ getDebPackVersion # returns a version of package  (.deb) installed
 
 
 ### sample:
@@ -116,4 +119,12 @@ source ./common-shell-lib
 names=(Davros Daniel Debra 'Yan Mordock' Woody)
 matchD=()
 arrayFilter names name matchD 'echo "$name" | grep ^D'
+```
+
+### sample: Calculing five times table with forEach
+```bash
+	source ./common-shell-lib
+  five_times_table=({0..10})
+  forEach five_times_table number 'number=$(echo "$number * 5"| bc )'
+  arrayMap five_times_table multiple number 'echo "5 * $number = $multiple"' #printing five times table
 ```
