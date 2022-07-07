@@ -73,14 +73,20 @@ testForEach(){
         echo $current_number
     }
 
+
     forEach array_numbers number 'number=$(inc $number)'
-    assertEquals '[Running forEach without index declaration]' "${expected_array_numbers[*]}" "${array_numbers[*]}"
+    assertEquals '[Running forEach without index declaration]'\
+        "${expected_array_numbers[*]}" "${array_numbers[*]}"
 
     array_numbers=({2..100..5})
+    #Note: number is reference to array_numbers[$index]
     forEach array_numbers number index '
         printf "%s " "[$index]"
         number=$(inc $number)'
-    assertEquals '[Running forEach with  index declaration]' "${expected_array_numbers[*]}" "${array_numbers[*]}"
+    echo ''
+    assertEquals '[Running forEach with  index declaration]'\
+        "${expected_array_numbers[*]}" "${array_numbers[*]}"
+}
 
 
 }
