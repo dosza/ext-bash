@@ -123,8 +123,8 @@ arrayFilter names name matchD 'echo "$name" | grep ^D'
 
 ### sample: Calculing five times table with forEach
 ```bash
-	source ./common-shell-lib
-  five_times_table=({0..10})
-  forEach five_times_table number 'number=$(echo "$number * 5"| bc )'
-  arrayMap five_times_table multiple number 'echo "5 * $number = $multiple"' #printing five times table
+source ./common-shell-lib
+five_times_table=({0..10})
+forEach five_times_table number 'number=$(echo "$number * 5"| bc )'
+arrayMap five_times_table multiple number 'echo "5 * $number = $multiple"' #printing five times table
 ```
