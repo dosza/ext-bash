@@ -101,9 +101,7 @@ len(){
 
 isVariabelDeclared(){
 	if [ "$1" = "" ]; then return 1; fi
-
 	declare -p "$1"  &> /dev/null
-	return $?
 }
 
 #forEach is a function similar to arrayMap, but the iterator is a reference to the current element of the array
