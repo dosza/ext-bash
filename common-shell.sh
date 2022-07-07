@@ -81,13 +81,13 @@ initArrayAsCommand(){
 
 
 isVariableArray(){
-	local query_var=$(declare -p $1 2>/dev/null)
+	local query_var=$(declare -p "$1" 2> /dev/null)
 	local array_regex_pattern='^declare -[aA]' 
 	[[ $query_var =~ $array_regex_pattern ]]
 }
 
 isVariableAssociativeArray(){
-	local query_var=$(declare -p $1 2>/dev/null)
+	local query_var=$(declare -p "$1" 2>/dev/null)
 	local array_regex_pattern='^declare -A'
 	[[ $query_var =~ $array_regex_pattern ]]
 }
