@@ -89,7 +89,11 @@ testForEach(){
 }
 
 
+testInitArrayAsCommand(){
+    local files=`echo *`
+    local array_command=()
+    initArrayAsCommand array_command 'echo *'
+    assertEquals "${files}" "${array_command[*]}"
 }
-
 . $(which shunit2)
 
