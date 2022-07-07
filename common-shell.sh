@@ -172,7 +172,7 @@ arraySlice(){
 arrayToString(){
 	if [ "$1" = "" ] ; then return 1 ; fi
 
-	! isVariabelDeclared $1 &
+	! isVariabelDeclared $1 && returnFalse
 
 	newPtr array_str=$1
 	echo "${array_str[*]}"
