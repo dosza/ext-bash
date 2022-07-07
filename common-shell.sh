@@ -93,14 +93,13 @@ isVariableAssociativeArray(){
 }
 
 len(){
-	isVariabelDeclared $1
-	[ $? != 0 ] && strLen "$1"  && return 
 
-	isVariableArray $1
-	if [ $? = 0 ]; then 
+	if isVariableArray $1; then 
 		eval "echo \${#$1[*]}"
-	else
+	elif isVariabelDeclared "$1"; then
 		eval "echo \${#$1}"
+	else
+		strLen "$1"
 	fi
 }
 
