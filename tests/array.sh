@@ -67,6 +67,14 @@ testForEach(){
     local expected_array_numbers=({3..100..5})
     local array_numbers=({2..100..5})
 
+    local expected_five_table=({0..50..5})
+    local five_table=({0..10})
+
+
+    forEach five_table number 'number=$(echo "$number * 5"| bc )'
+
+    assertEquals "${expected_five_table[*]}" "${five_table[*]}"
+    
     inc(){
         local current_number=$1
         ((current_number++))
