@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------------------------#
 #Universidade federal de Mato Grosso (mater-alma)
 #Course: Science Computer
-#version: 0.2.3
-#Date: 17/12/2022
+#version: 0.3.0
+#Date: 07/07/2022
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
 
@@ -28,7 +28,14 @@
 #
 #v0.2.3 add $SLEEP_TIME variable and in  IsFileBusy sleep $SLEEP_TIME s
 #v0.3.0:
-# add forEach function
+# 	add forEach function
+#	remove unnecessary pipes in functions 
+#	replace grep pipes to regex bash test [[ $(expres) ~= $pattern ]]
+#	remove unnecessary tests [ $? !=  0 ]
+#	replace $(whoami) for $UID in isUserRoot
+#	add new apt function tests
+#	add system functions tests
+
 #GLOBAL VARIABLES
 #----ColorTerm
 VERDE=$'\e[1;32m'
