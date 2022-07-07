@@ -17,4 +17,13 @@ testIsUsersSudo(){
 	assertEquals "$expected_user_sudo" "$?"
 }
 
+
+testLen(){
+	local array=({0..10..2})
+	local str='name'
+	assertEquals "[Get a length of array by reference]" "${#array[*]}" "$(len array)"
+	assertEquals "[Get a length of string by reference]" "${#str}" "$(len str)"
+	assertEquals "[Get a length of string]" "5" "$(len maria)"
+}
+
 . $(which shunit2)
