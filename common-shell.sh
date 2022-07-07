@@ -740,8 +740,7 @@ CheckPackageDebIsInstalled(){
 
 getDebPackVersion(){
 	if CheckPackageDebIsInstalled "$1"; then 
-		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g' 
-		[[ "$(exec 2> /dev/null dpkg -s  "$1")" =~ $regex_install ]]
+		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g'
 	else
 		echo ""
 		return 1;
