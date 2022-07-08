@@ -74,7 +74,7 @@ testForEach(){
     forEach five_table number 'number=$(echo "$number * 5"| bc )'
 
     assertEquals "${expected_five_table[*]}" "${five_table[*]}"
-    
+
     inc(){
         local current_number=$1
         ((current_number++))
@@ -88,10 +88,11 @@ testForEach(){
 
     array_numbers=({2..100..5})
     #Note: number is reference to array_numbers[$index]
+    printf "\t${NEGRITO}"
     forEach array_numbers number index '
         printf "%s " "[$index]"
         number=$(inc $number)'
-    echo ''
+    echo "${NORMAL}"
     assertEquals '[Running forEach with  index declaration]'\
         "${expected_array_numbers[*]}" "${array_numbers[*]}"
 }
