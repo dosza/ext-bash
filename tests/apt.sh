@@ -1,11 +1,16 @@
 #!/bin/bash
 shopt -s expand_aliases
 
-testAptGetKeys(){
-    assertFalse "[ $(getAptKeys "" )]"
-    assertFalse "[ $(getAptKeys  my_array) ]"
     
+apt-get(){
+    if [ "$TEST_FAKE_APT_LOCK" != "" ]; then 
+        unset TEST_FAKE_APT_LOCK
+        return $BASH_FALSE
+    fi
+    return $BASH_TRUE
 }
+
+source ./get-shunit2
 
 testCheckPackageDebIsInstalled(){
     assertTrue "[ $(CheckPackageDebIsInstalled coreutils) "$BASH_TRUE" ]"
