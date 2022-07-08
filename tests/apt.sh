@@ -50,4 +50,106 @@ testGetCurrentDebianFrontend(){
     fi
 
 }
+
+testAptInstall(){
+    local apt_out=''
+    assertEquals "[Running Apt install without args]" "AptInstall requires arguments" "$(AptInstall)"
+    AptInstall gcc
+    assertTrue "[Running apt with success]" "$?"
+    TEST_FAKE_APT_LOCK=0
+    AptInstall gcc
+    assertTrue "[Running apt with fails and retry with success]" "$?"
+   
+    apt-get(){ return $BASH_FALSE ;}
+
+    w=$(AptInstall gcc 2>/dev/null)
+    assertFalse "[Running with errors and exit]" "$?"
+
+}
+
+
+testGetAptKeys(){
+    local apt_key_url_repository=(
+        "https://dl-ssl.google.com/linux/linux_signing_key.pub"
+        "https://static.geogebra.org/linux/office@geogebra.org.gpg.key"
+        "https://www.virtualbox.org/download/oracle_vbox_2016.asc"
+        "https://www.virtualbox.org/download/oracle_vbox.asc"
+        "https://packages.microsoft.com/keys/microsoft.asc")
+        
+        local expected_message='Getting apt Keys ...\nOK\nOK\nOK\nOK\nOK\n'
+        
+        Wget(){
+            local message="-----BEGIN PGP PUBLIC KEY BLOCK-----\nVGVzdCBDb25maWd1cmVTb3VyY2VzTGlzdCBmdW5jdGlvbgo="
+            message+="\n-----END PGP PUBLIC KEY BLOCK-----"
+
+            printf "%b" "$message"
+        }
+
+        apt-key (){
+            echo  "OK"
+        }
+
+    local fake_array='a=()'
+    type apt-key
+    assertEquals "[Installing apt keys on system with success]" "$(printf "%b" "$expected_message")" "$(getAptKeys apt_key_url_repository)"
+    assertEquals "[Try install apt keys without reference to array of keys ]" "" "$(getAptKeys )"
+    assertEquals "[Try installing apt keys with reference to a string type variable instead of an array]" "" "$(getAptKeys  fake_array)"
+}
+
+testConfigureSourcesList(){
+    mkdir -p '/tmp/apt/sources.list.d'
+    
+    local repositorys=(
+        '/tmp/apt/sources.list.d/google-chrome.list'
+        '/tmp/apt/sources.list.d/sublime-text.list' 
+        '/tmp/apt/sources.list.d/geogebra.list'
+        '/tmp/apt/sources.list.d/virtualbox.list'
+        '/tmp/apt/sources.list.d/teams.list')
+
+    local mirrors=(
+        'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
+        'deb https://download.sublimetext.com/ apt/stable/' 
+        'deb http://www.geogebra.net/linux/ stable main'
+        "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"    
+        "deb [arch=amd64] https://packages.microsoft.com/repos/ms-teams stable main")
+
+    local apt_key_url_repository=(
+        "https://dl-ssl.google.com/linux/linux_signing_key.pub"
+        "https://static.geogebra.org/linux/office@geogebra.org.gpg.key"
+        "https://www.virtualbox.org/download/oracle_vbox_2016.asc"
+        "https://www.virtualbox.org/download/oracle_vbox.asc"
+        "https://packages.microsoft.com/keys/microsoft.asc")
+
+    ConfigureSourcesList apt_key_url_repository mirrors repositorys
+    assertTrue "[Configuring Apt mirror with success]" $?
+
+    ConfigureSourcesList
+    assertFalse "[Configuring Apt mirror, but missing args]" $?
+}
+
+testConfigureSourcesListByScript(){
+    local scripts_url=(
+        https://deb.nodesource.com/setup_lts.x 
+        https://deb.nodesource.com/setup_lts.x 
+        https://deb.nodesource.com/setup_lts.x 
+        https://deb.nodesource.com/setup_lts.x 
+    )
+    local expected_message="OK\nOK\nOK\nOK\n"
+    local fake_array_url=''
+    Wget(){
+        echo 'echo OK'
+    }
+
+    assertEquals "[Configuring repositories using a script obtained from urls specified in an array]"\
+        "$(printf "%b" "$expected_message")" "$(ConfigureSourcesListByScript scripts_url)"
+    
+    assertEquals "[Configuring repositories using a script obtained from a url passing a string instead of an array]"\
+        "" "$(ConfigureSourcesListByScript fake_array_url)"
+
+    assertEquals "[Configuring repositories using a script obtained from a url, but missing args]"\
+        "" "$(ConfigureSourcesListByScript)"
+}   
+
+
+forEach APT_LOCKS lock 'lock=$(echo "$lock" | sed "s|/var|/tmp|g")'
 . $(which shunit2)
