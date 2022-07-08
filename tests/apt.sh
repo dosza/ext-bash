@@ -1,5 +1,5 @@
-source ./get-shunit2
-
+#!/bin/bash
+shopt -s expand_aliases
 
 testAptGetKeys(){
     assertFalse "[ $(getAptKeys "" )]"
