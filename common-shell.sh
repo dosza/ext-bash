@@ -696,7 +696,7 @@ WgetToStdout(){
 	fi	
 }
 Wget(){
-	if [ $1 = "" ]; then echo "Wget needs a argument"; exit 1;fi
+	if [ "$1" = "" ]; then echo "Wget needs a argument"; exit 1;fi
 	
 	local wget_opts="-c --timeout=$WGET_TIMEOUT"
 	if ! wget $wget_opts $*; then
