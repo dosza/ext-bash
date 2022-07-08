@@ -1,12 +1,10 @@
 #!/bin/bash
 
 source ./get-shunit2
-
 TEST_WGET_CASE=0
 wget(){
 	case $TEST_WGET_CASE in 
 		0)
-			echo 'Hello World!'
 			return $BASH_TRUE
 		;;
 		1)
@@ -21,13 +19,17 @@ wget(){
 
 
 testWget(){
-	assertEquals '[Running Wget without args]' "Wget needs a argument" "$(Wget "")"
+	local wget_out=''
+	wget_out="$(Wget "")"
+	assertFalse '[Running Wget without args]'  $?
 	TEST_WGET_CASE=1
-	assertEquals '[Running Wget Failed and Retrying Successfully]'\
-	 	'Hello World!' "$(Wget "http://localhost")"
+
+	wget_out="$(Wget "http://localhost")"
+	assertTrue '[Running Wget Failed and Retrying Successfully]' $?
 	TEST_WGET_CASE=2
-	assertEquals '[Running Wget Failed and Retrying with falls]'\
-		'possible network instability!!' "$(Wget "http://localhost")"
+
+	wget_out="$(Wget "http://localhost")"
+	assertFalse '[Running Wget Failed and Retrying with falls]'  $?
 }
 
 
@@ -41,7 +43,7 @@ testWgetOut(){
 	assertFalse $?
 
 	TEST_WGET_CASE=0
-	$(WgetToStdout  )
+	$(WgetToStdout  2>/dev/null)
 	assertFalse '[Running WgetToStdout without args]' $?
 }
 
