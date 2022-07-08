@@ -90,7 +90,6 @@ testGetAptKeys(){
         }
 
     local fake_array='a=()'
-    type apt-key
     assertEquals "[Installing apt keys on system with success]" "$(printf "%b" "$expected_message")" "$(getAptKeys apt_key_url_repository)"
     assertEquals "[Try install apt keys without reference to array of keys ]" "" "$(getAptKeys )"
     assertEquals "[Try installing apt keys with reference to a string type variable instead of an array]" "" "$(getAptKeys  fake_array)"
@@ -98,7 +97,7 @@ testGetAptKeys(){
 
 testConfigureSourcesList(){
     mkdir -p '/tmp/apt/sources.list.d'
-    
+
     local repositorys=(
         '/tmp/apt/sources.list.d/google-chrome.list'
         '/tmp/apt/sources.list.d/sublime-text.list' 
