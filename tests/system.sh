@@ -26,4 +26,24 @@ testLen(){
 	assertEquals "[Get a length of string]" "5" "$(len maria)"
 }
 
+
+testIsFileBusy(){
+	local tmp_busy_file=$(mktemp)
+
+	lockFile(){
+		exec 3>$tmp_busy_file
+		sleep 0.1
+	}
+
+	unlockFile(){
+		exec 3>&-
+	}
+
+	assertEquals "[Running IsFileBusy without file busy(unklocked)]" "" "$(IsFileBusy bash $tmp_busy_file)"
+	lockFile &
+	assertEquals "[Running IsFileBusy with file busy (locked) ]" "Wait for bash..." "$(IsFileBusy bash $tmp_busy_file)"
+	unlockFile
+	rm $tmp_busy_file
+
+}
 . $(which shunit2)
