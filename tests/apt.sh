@@ -178,6 +178,35 @@ testConfigureSourcesListByScript(){
 }   
 
 
+testWaitAptDpkg(){
+    FUSER_LOCK=0
+    if [ "$(which fuser)" = "" ]; then
+        assertFalse '[psmisc is not installed, exiting test]' 1
+        return 
+    fi
+    mkdir -p /tmp/lib/dpkg
+    
+    lockApt(){
+        FUSER_LOCK=1
+        >${APT_LOCKS[0]}
+        exec 3>${APT_LOCKS[0]}
+        sleep 0.1
+    }
+
+    unlockApt(){
+        FUSER_LOCK=0
+        exec 3>&-
+    }
+
+    lockApt &
+    waitAptDpkg
+    assertTrue '[Wait to apt process busy (apt/dpkg lock)]' $?
+
+    unlockApt
+    waitAptDpkg
+    assertTrue '[Running waitAptDpkg without apt/dpkg lock' $?
+}
+
 
 forEach APT_LOCKS lock 'lock=$(echo "$lock" | sed "s|/var|/tmp|g")'
 . $(which shunit2)
