@@ -95,6 +95,34 @@ testGetAptKeys(){
     assertEquals "[Try installing apt keys with reference to a string type variable instead of an array]" "" "$(getAptKeys  fake_array)"
 }
 
+
+testWriteAptMirrors(){
+    mkdir -p '/tmp/apt/sources.list.d'
+
+    local repositorys=(
+        '/tmp/apt/sources.list.d/google-chrome.list'
+        '/tmp/apt/sources.list.d/sublime-text.list' 
+        '/tmp/apt/sources.list.d/geogebra.list'
+        '/tmp/apt/sources.list.d/virtualbox.list'
+        '/tmp/apt/sources.list.d/teams.list')
+
+    local mirrors=(
+        'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
+        'deb https://download.sublimetext.com/ apt/stable/' 
+        'deb http://www.geogebra.net/linux/ stable main'
+        "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"    
+        "deb [arch=amd64] https://packages.microsoft.com/repos/ms-teams stable main")
+
+    writeAptMirrors
+    assertFalse "[Try writeAptMirrors without args]" $?
+    
+    writeAptMirrors mirrors
+    assertFalse "[Try writeAptMirrors with few args]" $?
+    
+    writeAptMirrors mirrors repositorys
+    assertTrue '[Try writeAptMirrors with success' $?
+}
+
 testConfigureSourcesList(){
     mkdir -p '/tmp/apt/sources.list.d'
 
@@ -148,6 +176,7 @@ testConfigureSourcesListByScript(){
     assertEquals "[Configuring repositories using a script obtained from a url, but missing args]"\
         "" "$(ConfigureSourcesListByScript)"
 }   
+
 
 
 forEach APT_LOCKS lock 'lock=$(echo "$lock" | sed "s|/var|/tmp|g")'
