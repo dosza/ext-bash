@@ -4,7 +4,7 @@ source ./get-shunit2
 
 
 
-testWriteFile(){
+testWriterFile(){
 	local testTempWriteFilePath=$(mktemp -t "file.txt.XXXXXXXXXXXXX")
 	local file2str=()
 	local file_str=(
@@ -27,7 +27,7 @@ testWriteFile(){
 	rm "$testTempWriteFilePath"
 }
 
-testWriteFileln(){
+testWriterFileln(){
 	local testTempWriteFilelnPath=$(mktemp -t "file.txt.XXXXXXXXXXXXX")
 	local file2str=()
 	local file_str=(

@@ -33,7 +33,7 @@ testWget(){
 }
 
 
-testWgetOut(){
+testWgetToStdout(){
 	TEST_WGET_CASE=0
 	local wx=''
 	WgetToStdout wx "https://raw.githubusercontent.com/jmpessoa/lazandroidmodulewizard/master/package.json"
