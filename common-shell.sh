@@ -542,7 +542,7 @@ GenerateScapesStr(){
 		echo "$1"; return 
 	fi
 
-	echo "$1" | sed "s|\/|\\\/|g;s|\.|\\\.|g;s|\-|\\\-|gs|\"|\\\"|g;s/'/\\\'/g"
+	echo "$1" | sed "s|\/|\\\/|g;s|\.|\\\.|g;s|\-|\\\-|g;s|\"|\\\"|g;s/'/\\\'/g"
 }
 
 
