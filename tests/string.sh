@@ -91,14 +91,14 @@ testStrRemoveShortStart(){
 
 
 
-testRemoveLongStart(){
+testStrRemoveLongStart(){
 	local str="abcABC123ABCabc" #exempla by: https://tldp.org/LDP/abs/html/string-manipulation.html
 	local shortstr="$(strRemoveLongStart "$str" 'a*C' )" #  Strip out longest match between 'a' and 'C'.
 	assertEquals "$shortstr" "abc"
 
 }
 
-testRemoveShortEnd(){
+testStrRemoveShortEnd(){
 	local str="/tmp/LAMW4Linux-master/lamw_manager/lamw_manager"
 	local shortstr="$(strRemoveShortEnd "$str" "/lamw_manager")"
 	assertEquals "$shortstr" "/tmp/LAMW4Linux-master/lamw_manager"
@@ -109,7 +109,7 @@ testRemoveShortEnd(){
 	assertEquals  "$shortstr" "bainabcdefgIJK"
 }
 
-testRemoveLongEnd(){
+testStrRemoveLongEnd(){
 	local str="xyzabcdefgIJKabcdefIJK"
 	local longstr="$(strRemoveLongEnd "$str" 'a*K')" # Strip out longest match between 'a' and 'K'.
 	assertEquals  "$longstr" "xyz"
