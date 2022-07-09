@@ -1,6 +1,6 @@
 # Common Shell Library
 <p align="center">
-	  <a href="https://github.com/dosza/common-shell-lib/archive/v0.3.0.zip"><img src="https://img.shields.io/badge/Release-v0.3.0-green"/> </a><img src="https://img.shields.io/badge/language-shell-blue"/> <a href="https://github.com/dosza/common-shell-lib/LICENSE.md"><img src="https://img.shields.io/github/license/dosza/common-shell-lib"/></a>
+	  <a href="https://github.com/dosza/common-shell-lib/archive/master.zip"><img src="https://img.shields.io/badge/Release-v0.3.0-green"/> </a><img src="https://img.shields.io/badge/language-shell-blue"/> <a href="https://github.com/dosza/common-shell-lib/LICENSE.md"><img src="https://img.shields.io/github/license/dosza/common-shell-lib"/></a>
 </p>
 
 What is?
