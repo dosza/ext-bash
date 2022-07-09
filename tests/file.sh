@@ -145,6 +145,23 @@ testInsertUniqueBlankLine(){
 
 }
 
+testSearchLineinFile(){
+	local search_line_path=$(mktemp -t file.txt.XXXXXXXXXXXXX)
+	local search_line_str='debian\nubuntu\nmint\nfedora\nopensuse\nsalix\nslackware\n'
+	local search_line_query='mint'
+	local search_line_query_not_found='windows'
+	printf "%b" "$search_line_str" > "$search_line_path"
+	searchLineinFile "$search_line_path" "$search_line_query"
+	assertEquals '[searchLineFile as success]'  "$BASH_FALSE" "$?"
+
+	searchLineinFile "$search_line_path" "$search_line_query_not_found"
+	assertEquals '[not found line in file]' "$BASH_TRUE" "$?"
+
+	rm "$search_line_path"
+	searchLineinFile "$search_line_path" "$search_line_query"
+	assertEquals '[not found file]' "$BASH_TRUE" "$?"	
+}
+
 
 
 
