@@ -45,7 +45,7 @@ testWriterFileln(){
 	mapfile  -t file2str <  "$testTempWriteFilelnPath" 
 	assertEquals "$(printf "${file2str[*]}")" "$(printf "${file_str[*]}")"
 	unset stream
-	WriterFileln "$testTempWriteFilelnPath" stream
+	WriterFileln "$testTempWriteFilelnPath" stream &>/dev/null
 	assertFalse "[Try WriterFileln with invalid array stream ]" $?
 	rm "$testTempWriteFilelnPath"
 }
@@ -70,11 +70,11 @@ testReplaceLine(){
 	mapfile  -t file2str <  "$testTempReplaceLinePath"
 	assertEquals "$(printf "%b" "${file2str[1]}")" "$(printf "%b" "$(strReplace "${file_str[1]}" "user" "pcman" )")"
 	
-	replaceLine "$testTempReplaceLinePath" "user"
+	replaceLine "$testTempReplaceLinePath" "user" &>/dev/null
 	assertFalse '[Try replaceLine with few args]' $?
 	
 	rm $testTempReplaceLinePath
-	replaceLine "$testTempReplaceLinePath" "user" "pcman"
+	replaceLine "$testTempReplaceLinePath" "user" "pcman" &>/dev/null
 	assertFalse '[Try replaceLine with non-existing file]' $?
 
 }
@@ -95,12 +95,12 @@ testAppendFile(){
 	mapfile -t resultStream < "$testAppendFile"
 	assertEquals "${expectedStream[*]}" "${resultStream[*]}"
 	unset stream
-	AppendFile "$testAppendFile" stream
+	AppendFile "$testAppendFile" stream &>/dev/null
 	assertFalse "[Try appendfile with invalid arrayStream]" $?
 
 	rm $testAppendFile
 
-	AppendFileln "$testAppendFile" appendStream
+	AppendFileln "$testAppendFile" appendStream &>/dev/null
 	assertFalse "[Try append on non-existing file]" $?
 }
 
@@ -120,12 +120,12 @@ testAppendFileln(){
 	assertEquals "${expectedStream[*]}" "${resultStream[*]}"
 
 	unset stream
-	AppendFileln "$testAppendFile" stream
+	AppendFileln "$testAppendFile" stream &>/dev/null
 	assertFalse "[Try appendfile with invalid arrayStream]" $?
 
 	rm $testAppendFile
 
-	AppendFileln "$testAppendFile" appendStream
+	AppendFileln "$testAppendFile" appendStream &>/dev/null
 	assertFalse "[Try append on non-existing file]" $?
 	
 }
@@ -158,7 +158,7 @@ testSearchLineinFile(){
 	assertEquals '[not found line in file]' "$BASH_TRUE" "$?"
 
 	rm "$search_line_path"
-	searchLineinFile "$search_line_path" "$search_line_query"
+	searchLineinFile "$search_line_path" "$search_line_query" &>/dev/null
 	assertEquals '[not found file]' "$BASH_TRUE" "$?"	
 }
 
@@ -182,7 +182,7 @@ testChangeDirectory(){
 	assertEquals "$PWD" "$test_chdir_path"
 	changeDirectory "$OLDPWD"
 	rm -r "$test_chdir_path"
-	$(changeDirectory "$test_chdir_path" 2>/dev/null)
+	$(changeDirectory "$test_chdir_path" &>/dev/null)
 	assertFalse '[Try to access a non-existing directory]' $?
 
 }
