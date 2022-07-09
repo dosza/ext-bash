@@ -664,14 +664,13 @@ AppendFileln(){
 }
 
 InsertUniqueBlankLine(){
-	if [ "$1" != "" ] ; then
-		if [ -e "$1" ] ; then 
-			local aux=$(tail -1 "$1" )       #tail -1 mostra a última linha do arquivo 
-			if [ "$aux" != "" ] ; then   # verifica se a última linha é vazia
-				sed  -i '$a\' "$1" #adiciona uma linha ao fim do arquivo
-			fi
-		fi
+	
+	([ "$1" = "" ] ||[  ! -e "$1" ]) && returnFalse
+	local aux=$(tail -1 "$1" )       #tail -1 mostra a última linha do arquivo 
+	if [ "$aux" != "" ] ; then   # verifica se a última linha é vazia
+		sed  -i '$a\' "$1" #adiciona uma linha ao fim do arquivo
 	fi
+
 }
 
 IsUserRoot(){
