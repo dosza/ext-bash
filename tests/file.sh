@@ -5,6 +5,7 @@ source ./get-shunit2
 
 
 testWriteFile(){
+	local testTempWriteFilePath=$(mktemp -t "file.txt.XXXXXXXXXXXXX")
 	local file2str=()
 	local file_str=(
 		"127.0.0.1\tlocalhost\n"
@@ -17,13 +18,17 @@ testWriteFile(){
 		"ff02::2 ip6-allrouters\n"
 	)
 
-	WriterFile /tmp/file.txt file_str
-	mapfile  file2str < "/tmp/file.txt" 
-	assertEquals "$(printf "${file2str[*]}")" "$(printf "${file_str[*]}")"
-
+	WriterFile $testTempWriteFilePath file_str
+	mapfile  file2str < "$testTempWriteFilePath" 
+	assertEquals '[testWriteFile as success]' "$(printf "${file2str[*]}")" "$(printf "${file_str[*]}")"
+	unset stream
+	WriterFileln "$testTempWriteFilePath" stream
+	assertFalse "[Try WriterFile with invalid array stream ]" $?
+	rm "$testTempWriteFilePath"
 }
 
 testWriteFileln(){
+	local testTempWriteFilelnPath=$(mktemp -t "file.txt.XXXXXXXXXXXXX")
 	local file2str=()
 	local file_str=(
 		"127.0.0.1\tlocalhost"
@@ -36,13 +41,18 @@ testWriteFileln(){
 		"ff02::2 ip6-allrouters"
 	)
 
-	WriterFileln /tmp/file.txt file_str
-	mapfile  -t file2str <  "/tmp/file.txt" 
+	WriterFileln "$testTempWriteFilelnPath" file_str
+	mapfile  -t file2str <  "$testTempWriteFilelnPath" 
 	assertEquals "$(printf "${file2str[*]}")" "$(printf "${file_str[*]}")"
+	unset stream
+	WriterFileln "$testTempWriteFilelnPath" stream
+	assertFalse "[Try WriterFileln with invalid array stream ]" $?
+	rm "$testTempWriteFilelnPath"
 }
 
 
 testReplaceLine(){
+	local testTempReplaceLinePath="$(mktemp -t "file.txt.XXXXXXXXXXXXX")"
 	local file2str=()
 	local file_str=(
 		"127.0.0.1\tlocalhost"
@@ -55,11 +65,17 @@ testReplaceLine(){
 		"ff02::2 ip6-allrouters"
 	)
 
-	WriterFileln /tmp/file.txt file_str
-	replaceLine /tmp/file.txt "user" "pcman"
-	mapfile  -t file2str <  "/tmp/file.txt" 
+	WriterFileln "$testTempReplaceLinePath" file_str
+	replaceLine "$testTempReplaceLinePath" "user" "pcman"
+	mapfile  -t file2str <  "$testTempReplaceLinePath"
 	assertEquals "$(printf "%b" "${file2str[1]}")" "$(printf "%b" "$(strReplace "${file_str[1]}" "user" "pcman" )")"
-
+	
+	replaceLine "$testTempReplaceLinePath" "user"
+	assertFalse '[Try replaceLine with few args]' $?
+	
+	rm $testTempReplaceLinePath
+	replaceLine "$testTempReplaceLinePath" "user" "pcman"
+	assertFalse '[Try replaceLine with non existent file]' $?
 
 }
 
