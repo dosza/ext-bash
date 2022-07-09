@@ -163,6 +163,15 @@ testSearchLineinFile(){
 }
 
 
+testWriterFileFromStr(){
+	local test_writer_file_path=$(mktemp -t file.txt.XXXXXXXXXXXXX)
+	local test_writer_file_stream="MariaDB\nMySQL\nSqlite3\n"
+	local test_writer_file_stream_resul=()
+	local expected_file_stream=('MariaDB' 'MySQL' Sqlite3)
+	WriterFileFromStr "$test_writer_file_path" "$test_writer_file_stream"
+	mapfile -t test_writer_file_stream_resul < "$test_writer_file_path"
+	assertEquals "${expected_file_stream[*]}" "${test_writer_file_stream_resul[*]}"
+}
 
 
 
