@@ -114,6 +114,21 @@ testAppendFileln(){
 	
 }
 
+testInsertUniqueBlankLine(){
+	local testFileUniqueBlankLinePath=$(mktemp -t "testUniqueBlankLine.txt.XXXXXXXXXXXXX")
+	local testUniqueLineBlankStr='MariaDB\nMySQL'
+	printf "%b" "$testUniqueLineBlankStr" > $testFileUniqueBlankLinePath
+	InsertUniqueBlankLine "$testFileUniqueBlankLinePath"
+	assertTrue '[Add blank line on file ]' $?
+
+	InsertUniqueBlankLine
+	assertFalse '[Try insert blank line with few args]' $?
+	rm "$testFileUniqueBlankLinePath"
+	InsertUniqueBlankLine "$testFileUniqueBlankLinePath"
+	assertFalse '[Try insert blank line in non existent file]' $?
+
+}
+
 
 
 
