@@ -173,6 +173,19 @@ testWriterFileFromStr(){
 	assertEquals "${expected_file_stream[*]}" "${test_writer_file_stream_resul[*]}"
 }
 
+testChangeDirectory(){
+	local test_chdir_path=$(mktemp -d -t chdir.XXXXXXXXXXXXX)
+	changeDirectory ''
+	assertTrue '[It does nothing if it has few arguments]' $?
+
+	changeDirectory "$test_chdir_path"
+	assertEquals "$PWD" "$test_chdir_path"
+	changeDirectory "$OLDPWD"
+	rm -r "$test_chdir_path"
+	$(changeDirectory "$test_chdir_path" 2>/dev/null)
+	assertFalse '[Try to access a non-existing directory]' $?
+
+}
 
 
 . $(which shunit2)
