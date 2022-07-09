@@ -1,6 +1,6 @@
 # Common Shell Library
 <p align="center">
-	  <a href="https://github.com/DanielOliveiraSouza/common-shell-lib/archive/v0.2.0.zip"><img src="https://img.shields.io/badge/Release-v0.2.0-green"/> </a><img src="https://img.shields.io/badge/language-shell-blue"/> <a href="https://github.com/DanielOliveiraSouza/common-shell-lib/LICENSE.md"><img src="https://img.shields.io/github/license/danieloliveirasouza/common-shell-lib"/></a>
+	  <a href="https://github.com/dosza/common-shell-lib/archive/v0.3.0.zip"><img src="https://img.shields.io/badge/Release-v0.3.0-green"/> </a><img src="https://img.shields.io/badge/language-shell-blue"/> <a href="https://github.com/dosza/common-shell-lib/LICENSE.md"><img src="https://img.shields.io/github/license/dosza/common-shell-lib"/></a>
 </p>
 
 What is?
@@ -64,7 +64,7 @@ sed  -i 's/stretch/buster/g' /etc/fstab
 
 #with common shell library
 #!/bin/bash
-source ./common-shell-lib.sh
+source ./common-shell.sh
 replaceLine /etc/apt/sources.list  "stretch" "buster" 
 
   ```	
@@ -77,7 +77,7 @@ strLen "$str" #write 12 in output
 ### sample: Splitting a string 
 
 ```bash
-source ./common-shell-lib.sh
+source ./common-shell.sh
 #split a string delimeted by ' ' (blank space)
 my_array=()
 str="Hello World!"
@@ -86,14 +86,14 @@ Split "$str" " " my_array # my_array=("Hello" "World!")
 
 ### sample: Getting a substring using a *offset* and *length*
 ```bash
-source ./common-shell-lib.sh
+source ./common-shell.sh
 str="user@pc:~"
 sub_str="$(strGetSubstring "$str" 5 2)" #sub_str="pc"
 ```
 
 ### sample: Installing packages using arrayMap
 ```bash
-source ./common-shell-lib
+source ./common-shell.sh
 packages=(gcc g++ wget)
 arrayMap  packages package 'sudo apt-get install $package -y
 ```
@@ -105,7 +105,7 @@ arrayMap  packages package 'sudo apt-get install $package -y
 
 ### sample: Filter pars numbers and store in pars.
 ```bash
-source ./common-shell-lib
+source ./common-shell.sh
 numbers=({357..368})
 pars=()
 arrayFilter numbers number pars '((number %2 == 0))'
@@ -115,7 +115,7 @@ arrayToString pars
 
 ### sample: Filter names with start of letter D
 ```bash
-source ./common-shell-lib
+source ./common-shell.sh
 names=(Davros Daniel Debra 'Yan Mordock' Woody)
 matchD=()
 arrayFilter names name matchD 'echo "$name" | grep ^D'
@@ -123,8 +123,8 @@ arrayFilter names name matchD 'echo "$name" | grep ^D'
 
 ### sample: Calculing five times table with forEach
 ```bash
-source ./common-shell-lib
+source ./common-shell.sh
 five_times_table=({0..10})
-forEach five_times_table number 'number=$(echo "$number * 5"| bc )'
-arrayMap five_times_table multiple number 'echo "5 * $number = $multiple"' #printing five times table
+  forEach five_times_table number 'number=$(echo "$number * 5"| bc )'
+  arrayMap five_times_table multiple number 'echo "5 * $number = $multiple"' #printing five times table
 ```
