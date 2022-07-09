@@ -208,5 +208,5 @@ testWaitAptDpkg(){
 }
 
 
-forEach APT_LOCKS lock 'lock=$(echo "$lock" | sed "s|/var|/tmp|g")'
+forEach APT_LOCKS lock 'lock=$(strReplace  "$lock" "/var" "/tmp")'
 . $(which shunit2)
