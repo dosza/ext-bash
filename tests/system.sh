@@ -87,7 +87,7 @@ testIsVariabelDeclared(){
 
 	unset G_VARIABLE
 	isVariabelDeclared G_VARIABLE
-	assertFalse '[Test a non existent variable]' $?
+	assertFalse '[Test a non-existing variable]' $?
 
 	isVariabelDeclared local_var
 	assertTrue '[Test as sucessful local variable declared]' $?

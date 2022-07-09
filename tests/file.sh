@@ -75,7 +75,7 @@ testReplaceLine(){
 	
 	rm $testTempReplaceLinePath
 	replaceLine "$testTempReplaceLinePath" "user" "pcman"
-	assertFalse '[Try replaceLine with non existent file]' $?
+	assertFalse '[Try replaceLine with non-existing file]' $?
 
 }
 
@@ -101,7 +101,7 @@ testAppendFile(){
 	rm $testAppendFile
 
 	AppendFileln "$testAppendFile" appendStream
-	assertFalse "[Try append on non existent file]" $?
+	assertFalse "[Try append on non-existing file]" $?
 }
 
 testAppendFileln(){
@@ -126,7 +126,7 @@ testAppendFileln(){
 	rm $testAppendFile
 
 	AppendFileln "$testAppendFile" appendStream
-	assertFalse "[Try append on non existent file]" $?
+	assertFalse "[Try append on non-existing file]" $?
 	
 }
 
@@ -141,7 +141,7 @@ testInsertUniqueBlankLine(){
 	assertFalse '[Try insert blank line with few args]' $?
 	rm "$testFileUniqueBlankLinePath"
 	InsertUniqueBlankLine "$testFileUniqueBlankLinePath"
-	assertFalse '[Try insert blank line in non existent file]' $?
+	assertFalse '[Try insert blank line in non-existing file]' $?
 
 }
 
