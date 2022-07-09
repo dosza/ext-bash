@@ -204,6 +204,21 @@ testStrToLowerCase(){
 	assertEquals "$(strToLowerCase "$str")" "my name is ammy pond"
 }
 
+testGenerateScapesStr(){
+	local str_test_scape='maria/db'
+	local expected_str_scape='maria\/db'
+	local result_test_scape=''
+
+	result_test_scape=$(GenerateScapesStr)
+	assertFalse '[Try scape a empty string ]'$?
+	assertEquals "$expected_str_scape" "$(GenerateScapesStr "$str_test_scape")"
+	assertEquals '[Try scape a string with scapes]' "$expected_str_scape" "$(GenerateScapesStr "$expected_str_scape")"
+}
+
+testStr_substring1(){
+	true
+}
+
 
 # Load and run shUnit2.
 . $(which shunit2)
