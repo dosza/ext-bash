@@ -614,7 +614,7 @@ WriterFileFromStr(){
 	local stream="$2"
 
 	[ $#  -lt 2 ] || [ "$1" = "" ] &&  return 1
-		echo -e "$stream" > "$filename"
+		printf "%b" "$stream" > "$filename"
 }
 
 
@@ -664,7 +664,7 @@ AppendFileln(){
 }
 
 InsertUniqueBlankLine(){
-	
+
 	([ "$1" = "" ] ||[  ! -e "$1" ]) && returnFalse
 	local aux=$(tail -1 "$1" )       #tail -1 mostra a última linha do arquivo 
 	if [ "$aux" != "" ] ; then   # verifica se a última linha é vazia
