@@ -28,7 +28,7 @@ testLen(){
 
 
 testIsFileBusy(){
-	local tmp_busy_file=$(mktemp)
+	local tmp_busy_file=$(mktemp   -t 'file.busy.txt.XXXXXXXXXXXXX')
 
 	lockFile(){
 		exec 3>$tmp_busy_file
