@@ -64,6 +64,58 @@ testReplaceLine(){
 }
 
 
+testAppendFile(){
+	local testAppendFile=$(mktemp  -t testAppend.txt.XXXXXXXXXXXXX)
+	local testAppendFileStr='MariaDB\nMySQL\n'
+	local appendStream=('Sqlite3\n')
+	local resultStream=()
+	local expectedStream=(
+		'MariaDB'
+		'MySQL'
+		'Sqlite3'
+	)
+	printf "%b" "$testAppendFileStr" >> "$testAppendFile"
+	AppendFile "$testAppendFile" appendStream
+	mapfile -t resultStream < "$testAppendFile"
+	assertEquals "${expectedStream[*]}" "${resultStream[*]}"
+	unset stream
+	AppendFile "$testAppendFile" stream
+	assertFalse "[Try appendfile with invalid arrayStream]" $?
+
+	rm $testAppendFile
+
+	AppendFileln "$testAppendFile" appendStream
+	assertFalse "[Try append on non existent file]" $?
+}
+
+testAppendFileln(){
+	local testAppendFile=$(mktemp  -t testAppend.txt.XXXXXXXXXXXXX)
+	local testAppendFileStr='MariaDB\nMySQL\n'
+	local appendStream=('Sqlite3')
+	local resultStream=()
+	local expectedStream=(
+		'MariaDB'
+		'MySQL'
+		'Sqlite3'
+	)
+	printf "%b" "$testAppendFileStr" >> "$testAppendFile"
+	AppendFileln "$testAppendFile" appendStream
+	mapfile -t resultStream < "$testAppendFile"
+	assertEquals "${expectedStream[*]}" "${resultStream[*]}"
+
+	unset stream
+	AppendFileln "$testAppendFile" stream
+	assertFalse "[Try appendfile with invalid arrayStream]" $?
+
+	rm $testAppendFile
+
+	AppendFileln "$testAppendFile" appendStream
+	assertFalse "[Try append on non existent file]" $?
+	
+}
+
+
+
 
 
 . $(which shunit2)
