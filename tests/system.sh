@@ -32,7 +32,7 @@ testIsFileBusy(){
 
 	lockFile(){
 		exec 3>$tmp_busy_file
-		sleep 0.1
+		sleep 0.2
 	}
 
 	unlockFile(){
