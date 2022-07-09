@@ -216,7 +216,13 @@ testGenerateScapesStr(){
 }
 
 testStr_substring1(){
-	true
+	local str="is Daniel"
+	local aux=""
+	assertEquals "$(str_substring1 "$str" 3 7)" "Daniel"
+
+	str="The Crown Series IV"
+	aux="$( str_substring1 "$str" 10 )"
+	assertEquals  "" "$aux"
 }
 
 
