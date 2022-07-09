@@ -638,6 +638,7 @@ AppendFile(){
 			done
 		else
 			echo "\"$filename\" does not exists!"
+			returnFalse
 		fi
 	fi
 }
@@ -653,10 +654,11 @@ AppendFileln(){
 		if [  -e  "$filename" ]; then 
 			for ((_index_stream=0;_index_stream<${#stream[*]};_index_stream++));do
 				local line="${stream[$_index_stream]}"
-				printf "%b" "$line" >> "$filename"
+				printf "%b\n" "$line" >> "$filename"
 			done
 		else
 			echo "\"$filename\" does not exists!"
+			returnFalse
 		fi
 	fi
 }
