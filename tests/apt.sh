@@ -1,6 +1,7 @@
 #!/bin/bash
 shopt -s expand_aliases
 
+FAKE_ROOT_TEST_DIR=$(mktemp -d -t common_shell_root.XXXXXXXXXXX)
     
 apt-get(){
     if [ "$TEST_FAKE_APT_LOCK" != "" ]; then 
@@ -97,14 +98,14 @@ testGetAptKeys(){
 
 
 testWriteAptMirrors(){
-    mkdir -p '/tmp/apt/sources.list.d'
+    mkdir -p "$FAKE_ROOT_TEST_DIR/apt/sources.list.d"
 
     local repositorys=(
-        '/tmp/apt/sources.list.d/google-chrome.list'
-        '/tmp/apt/sources.list.d/sublime-text.list' 
-        '/tmp/apt/sources.list.d/geogebra.list'
-        '/tmp/apt/sources.list.d/virtualbox.list'
-        '/tmp/apt/sources.list.d/teams.list')
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/google-chrome.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/sublime-text.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/geogebra.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/virtualbox.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/teams.list" )
 
     local mirrors=(
         'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
@@ -124,14 +125,14 @@ testWriteAptMirrors(){
 }
 
 testConfigureSourcesList(){
-    mkdir -p '/tmp/apt/sources.list.d'
+    mkdir -p "$FAKE_ROOT_TEST_DIR/apt/sources.list.d"
 
     local repositorys=(
-        '/tmp/apt/sources.list.d/google-chrome.list'
-        '/tmp/apt/sources.list.d/sublime-text.list' 
-        '/tmp/apt/sources.list.d/geogebra.list'
-        '/tmp/apt/sources.list.d/virtualbox.list'
-        '/tmp/apt/sources.list.d/teams.list')
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/google-chrome.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/sublime-text.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/geogebra.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/virtualbox.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/teams.list'")
 
     local mirrors=(
         'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
@@ -201,8 +202,11 @@ testWaitAptDpkg(){
     unlockApt
     waitAptDpkg
     assertTrue '[Running waitAptDpkg without apt/dpkg lock' $?
+
+    rm -rf "${FAKE_ROOT_TEST_DIR}"
 }
 
 
-forEach APT_LOCKS lock 'lock=$(strReplace  "$lock" "/var" "/tmp")'
+forEach APT_LOCKS lock 'lock="${FAKE_ROOT_TEST_DIR}${lock}"
+    mkdir -p "$(dirname $lock)"'
 . $(which shunit2)
