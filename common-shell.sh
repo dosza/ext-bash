@@ -144,7 +144,7 @@ forEach(){
 arraySlice(){
 	if [ "$1" = "" ] || [ $# -lt 3 ]; then return 1 ; fi
 
-	! isVariabelDeclared $1 && returnFalse
+	! isVariableArray $1 && returnFalse
 	
 
 	newPtr ref_array_sliced=$1
@@ -152,13 +152,13 @@ arraySlice(){
 
 	case $# in 
 		3 )
-			! isVariabelDeclared $3 && returnFalse
+			! isVariableArray $3 && returnFalse
 
 			newPtr ref_ret_array_sliced=$3
 			ref_ret_array_sliced=("${ref_array_sliced[@]:$2}")
 		;;
 		4 )
-			! isVariabelDeclared $4 && returnFalse
+			! isVariableArray $4 && returnFalse
 	
 
 			newPtr ref_ret_array_sliced=$4
@@ -171,7 +171,7 @@ arraySlice(){
 arrayToString(){
 	if [ "$1" = "" ] ; then return 1 ; fi
 
-	! isVariabelDeclared $1 && returnFalse
+	! isVariableArray $1 && returnFalse
 
 	newPtr array_str=$1
 	echo "${array_str[*]}"
@@ -198,7 +198,7 @@ arrayMap(){
 
 	if [ $# -lt 3 ] || [ 4 -lt $# ] ; then return ; fi 
 	
-	! isVariabelDeclared $1 && returnFalse
+	! isVariableArray $1 && returnFalse
 	newPtr refMap=$1
 
 	case $# in
@@ -452,7 +452,7 @@ splitStr(){
         return 1
     fi
 
-    ! isVariabelDeclared $3 && returnFalse
+    ! isVariableArray $3 && returnFalse
 		
 
     local str="$1"
@@ -810,12 +810,11 @@ writeAptMirrors(){
 	fi
 
 
-	newPtr ref_str_mirrors=$1
 	newPtr ref_file_mirros=$2
 
 	echo "Writing mirrors ..."
 	
-	arrayMap ref_str_mirrors mirror index '{
+	arrayMap $1 mirror index '{
 		local file_mirror=${ref_file_mirros[$index]}
 		local mirror_str=(
 			"### THIS FILE IS AUTOMATICALLY CONFIGURED"
@@ -831,8 +830,7 @@ ConfigureSourcesListByScript(){
 
 	! isVariableArray $1 && returnFalse
 
-	newPtr ref_scripts_link=$1
-	arrayMap ref_scripts_link script 'Wget -qO- "$script" | bash - '
+	arrayMap $1 script 'Wget -qO- "$script" | bash - '
 	
 }
 
@@ -841,9 +839,8 @@ getAptKeys(){
 
 	! isVariableArray $1 && returnFalse
 
-	newPtr ref_apt_keys=$1
 	echo "Getting apt Keys ..."
-	arrayMap ref_apt_keys key 'Wget -qO- "$key" | apt-key add - '
+	arrayMap $1 key 'Wget -qO- "$key" | apt-key add - '
 	
 }
 
