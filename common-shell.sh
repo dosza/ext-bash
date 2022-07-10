@@ -96,7 +96,7 @@ len(){
 
 	if isVariableArray $1; then 
 		eval "echo \${#$1[*]}"
-	elif isVariabelDeclared "$1"; then
+	elif isVariableDeclared "$1"; then
 		eval "echo \${#$1}"
 	else
 		strLen "$1"
@@ -105,7 +105,7 @@ len(){
 
 #check f variable exists
 
-isVariabelDeclared(){
+isVariableDeclared(){
 	if [ "$1" = "" ]; then return 1; fi
 	declare -p "$1"  &> /dev/null
 }
@@ -428,7 +428,7 @@ Split (){
 		return 1
 	fi
 
-	! isVariabelDeclared $3 && returnFalse
+	! isVariableDeclared $3 && returnFalse
 	
 
 
@@ -686,7 +686,7 @@ IsUserRoot(){
 
 WgetToStdout(){
 	local wget_opts="-c --timeout=$WGET_TIMEOUT -qO-"
-	! isVariabelDeclared $1 && exit 1
+	! isVariableDeclared $1 && exit 1
 
 
 	newPtr ref_out=$1 

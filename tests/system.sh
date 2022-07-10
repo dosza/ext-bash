@@ -78,18 +78,18 @@ testIsVariableAssociativeArray(){
 	assertTrue '[Test  associative array as success]' $?	
 }
 
-testIsVariabelDeclared(){
+testIsVariableDeclared(){
 	G_VARIABLE=''
 	local local_var=''
 
-	isVariabelDeclared G_VARIABLE
+	isVariableDeclared G_VARIABLE
 	assertTrue '[Test as sucessful variable declared]' $?
 
 	unset G_VARIABLE
-	isVariabelDeclared G_VARIABLE
+	isVariableDeclared G_VARIABLE
 	assertFalse '[Test a non-existing variable]' $?
 
-	isVariabelDeclared local_var
+	isVariableDeclared local_var
 	assertTrue '[Test as sucessful local variable declared]' $?
 
 }
