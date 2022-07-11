@@ -572,40 +572,40 @@ replaceLine(){
 #$2 stream 
 #note a stream must to be a formatted string
 WriterFile(){
-	if [ $# = 2 ]; then
-		local filename="$1"
+	[ $# -lt 2 ] && returnFalse
 
-		! isVariableArray $2 && returnFalse
+	local filename="$1"
+	! isVariableArray $2 && returnFalse
 
-		newPtr stream=$2
-		for(( _index_stream=0;_index_stream<${#stream[@]};_index_stream++));do
-			local line="${stream[_index_stream]}"
-			if [ $_index_stream = 0 ]; then 
-				printf "%b" "$line" > "$filename"
-			else
-				printf "%b" "$line" >> "$filename"
-			fi
-		done
-	fi
+	newPtr stream=$2
+	for(( _index_stream=0;_index_stream<${#stream[@]};_index_stream++));do
+		local line="${stream[_index_stream]}"
+		if [ $_index_stream = 0 ]; then 
+			printf "%b" "$line" > "$filename"
+		else
+			printf "%b" "$line" >> "$filename"
+		fi
+	done
+	
 }
 
 WriterFileln(){
-	if [ $# = 2 ]; then
-		local filename="$1"
+	[ $# -lt 2 ] && returnFalse
 
-		! isVariableArray $2 && returnFalse
-		
+	local filename="$1"
+	! isVariableArray $2 && returnFalse
+	
 
-		newPtr stream=$2
-		for(( _index_stream=0; _index_stream<${#stream[@]}; _index_stream++ )); do 
-			local line="${stream[_index_stream]}"
-			if [ $_index_stream = 0 ]; then 
-				printf "%b\n" "$line" > "$filename"
-			else
-				printf "%b\n" "$line" >> "$filename"
-			fi
-		done
-	fi
+	newPtr stream=$2
+	for(( _index_stream=0; _index_stream<${#stream[@]}; _index_stream++ )); do 
+		local line="${stream[_index_stream]}"
+		if [ $_index_stream = 0 ]; then 
+			printf "%b\n" "$line" > "$filename"
+		else
+			printf "%b\n" "$line" >> "$filename"
+		fi
+	done
+
 }
 
 
@@ -625,41 +625,40 @@ WriterFileFromStr(){
 #sintaxy WriterFile(char filename, char * stream )
 #note a stream must to be a formatted string
 AppendFile(){
-	if [ $# = 2 ]; then
-		local filename="$1"
+	[ $# -lt 2 ] && returnFalse
+	
 
-		! isVariableArray $2 && returnFalse
+	local filename="$1"
+	! isVariableArray $2 && returnFalse
 
-		newPtr stream=$2
-		if [  -e  $filename ]; then 
-			for ((_index_stream=0;_index_stream<${#stream[*]};_index_stream++));do
-				local line="${stream[_index_stream]}"
-				printf "%b" "$line" >> "$filename"
-			done
-		else
-			echo "\"$filename\" does not exists!"
-			returnFalse
-		fi
+	newPtr stream=$2
+	if [  -e  $filename ]; then 
+		for ((_index_stream=0;_index_stream<${#stream[*]};_index_stream++));do
+			local line="${stream[_index_stream]}"
+			printf "%b" "$line" >> "$filename"
+		done
+	else
+		echo "\"$filename\" does not exists!"
+		returnFalse
 	fi
 }
 
 AppendFileln(){
-	if [ $# = 2 ]; then
-		local filename="$1"
+	[ $# -lt 2 ] && returnFalse
 
-		! isVariableArray $2 && returnFalse
-		
+	local filename="$1"
+	! isVariableArray $2 && returnFalse
+	
 
-		newPtr stream=$2
-		if [  -e  "$filename" ]; then 
-			for ((_index_stream=0;_index_stream<${#stream[*]};_index_stream++));do
-				local line="${stream[$_index_stream]}"
-				printf "%b\n" "$line" >> "$filename"
-			done
-		else
-			echo "\"$filename\" does not exists!"
-			returnFalse
-		fi
+	newPtr stream=$2
+	if [  -e  "$filename" ]; then 
+		for ((_index_stream=0;_index_stream<${#stream[*]};_index_stream++));do
+			local line="${stream[$_index_stream]}"
+			printf "%b\n" "$line" >> "$filename"
+		done
+	else
+		echo "\"$filename\" does not exists!"
+		returnFalse
 	fi
 }
 
@@ -849,5 +848,4 @@ ConfigureSourcesList(){
 	getAptKeys $1
 	writeAptMirrors $2 $3
 }
-
 

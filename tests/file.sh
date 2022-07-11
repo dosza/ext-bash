@@ -22,9 +22,11 @@ testWriterFile(){
 	mapfile  file2str < "$testTempWriteFilePath" 
 	assertEquals '[testWriteFile as success]' "$(printf "${file2str[*]}")" "$(printf "${file_str[*]}")"
 	unset stream
-	WriterFileln "$testTempWriteFilePath" stream
+	WriterFile "$testTempWriteFilePath" stream
 	assertFalse "[Try WriterFile with invalid array stream ]" $?
 	rm "$testTempWriteFilePath"
+	WriterFile 
+	assertFalse "[Try WriterFile with few args]" $?
 }
 
 testWriterFileln(){
@@ -48,6 +50,9 @@ testWriterFileln(){
 	WriterFileln "$testTempWriteFilelnPath" stream &>/dev/null
 	assertFalse "[Try WriterFileln with invalid array stream ]" $?
 	rm "$testTempWriteFilelnPath"
+	WriterFileln 
+	assertFalse "[Try WriterFileln with few args]" $?
+
 }
 
 
