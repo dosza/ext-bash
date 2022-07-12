@@ -78,24 +78,36 @@ alias isFalse='if [ $? != 0 ]; then return 1; fi'
 alias returnFalse='return $BASH_FALSE'
 alias WARM_ERROR_NETWORK_AND_EXIT='if [ $? != 0 ]; then echo "possible network instability!!";exit 1;fi'
 
+# Declare an array initialized with the output of a command
+# $1 is the name of the array to be declared
+# $2 is the sequence of commands to be executed
 initArrayAsCommand(){
 	eval "$1=(`$2`)"
 }
 
-
-
+# Check if the variable is an array
+# $1 is is variable name
 isVariableArray(){
 	local query_var=$(declare -p "$1" 2> /dev/null)
 	local array_regex_pattern='^declare -[aA]' 
 	[[ $query_var =~ $array_regex_pattern ]]
 }
 
+# Check if the variable is an associative array
+# $1 is is variable name
 isVariableAssociativeArray(){
 	local query_var=$(declare -p "$1" 2>/dev/null)
 	local array_regex_pattern='^declare -A'
 	[[ $query_var =~ $array_regex_pattern ]]
 }
 
+# Returns the size of a string, or the size of an array (via reference), or a string variable
+# Form 1:
+# $1 is as string
+# Form 2:
+# $1 is reference to variable (type string)
+# Form 3:
+# $1 is reference to array or associative array
 len(){
 
 	if isVariableArray $1; then 
@@ -107,7 +119,8 @@ len(){
 	fi
 }
 
-#check f variable exists
+# Check  variable exists
+# Return true if variable was declared or false
 
 isVariableDeclared(){
 	if [ "$1" = "" ]; then return 1; fi
@@ -145,6 +158,16 @@ forEach(){
     esac
 }
 
+# Slice array
+# Form 1:
+# $1 is array 
+# $2 is delimiter
+# $3 is reference to sliced array 
+# Form 2
+# $1 is array
+# $2 is delimiter
+# $3 is offset
+# $4 is reference to sliced array
 arraySlice(){
 	if [ "$1" = "" ] || [ $# -lt 3 ]; then return 1 ; fi
 
@@ -172,6 +195,8 @@ arraySlice(){
 
 }
 
+# Show Array content as string
+# $1 is a string 
 arrayToString(){
 	if [ "$1" = "" ] ; then return 1 ; fi
 
@@ -186,13 +211,13 @@ arrayToString(){
 # names=(Elis Ethel Izzy)
 
 #Form 1:
-#$1 is the input array (example: names)
-#$2 is an iterative variable (example: name)
-#$3 is the commands to be executed: (example: 'echo $name')
+# $1 is the input array (example: names)
+# $2 is an iterative variable (example: name)
+# $3 is the commands to be executed: (example: 'echo $name')
 
 #Form 2:
-#$3 is a index variable (ex: index )
-#$4 is the commands to execute 'echo $name'
+# $3 is a index variable (ex: index )
+# $4 is the commands to execute 'echo $name'
 #using form1:
 # arrayMap names name 'echo $name'
 #using form2:
@@ -214,6 +239,27 @@ arrayMap(){
 		;;
 	esac
 }
+
+# This function works similarly to javascript's Array.filter
+# Receive an array and apply it to a test and storing the data in ArrayFiltred (passed by reference)
+#Form 1:
+# $1 is the input array (example: names)
+# $2 is an iterative variable (example: name)
+# $3 is reference to filtred array
+# $4 is the commands to be executed: (example: 'echo $name')
+
+#Form 2:
+# $3 is a index variable (ex: index )
+# $4 is reference to filtred array
+# $5 is the commands to execute 'echo $name'
+
+# sample form1:
+# names=(Davros Daniel Debra 'Yan Mordock' Woody)
+# matchD=()
+# regex_stard_with_d='^D'
+# arrayFilter names name matchD '[[ "$name" =~ $regex_stard_with_d  ]]'
+# sample form 2:
+# arrayFilter names name index matchD '[[ "$name" =~ $regex_stard_with_d  ]]'
 
 arrayFilter(){
 
@@ -257,9 +303,6 @@ arrayFilter(){
 			refFilter=()
 			
 
-			#arrayFilter array iterator index filterD '{commands}'
-			#arrayFilter packages pack index filter '{...}'
-
 			eval "isVariableAssociativeArray $4
 			if [ \$? != 0  ]; then 
 				_appendArrayFiltered(){ refFilter+=(\$$2) ; }
@@ -299,11 +342,16 @@ strToUpperCase(){
 	echo "${1^^}"
 }
 
+# Return true  to stdout is "$1" is equal to $2
+# $1 is string
+# $2 is string
 isStrEqual(){
 	[[ "$1" = "$2" ]]
 	echo $?
 }
 
+# Return true to stdout is "$1" is '' (empty)
+# $1 is a string 
 isStrEmpty(){
 	isStrEqual "$1" ""
 }
@@ -324,7 +372,7 @@ strGetSubstring(){
 
 # get a substring  with of str with offset and length, is a funtion to expansion ${str:$offset:$length}
 # $1 is a string, note:
-# $2 is a offset
+# $2 is a offset# arrayFilter names name matchD '[[ "$name" =~ $regex_stard_with_d  ]]'
 # $3 is a length of string
 # returns to stdout of substring
 #note is small implementation 
@@ -488,6 +536,9 @@ splitStr(){
 
 
 #cd not a native command, is a systemcall used to exec, read more in exec man 
+# ChangeDirectory
+# $1 is path of directory 
+# return false if $1 is empty
 changeDirectory(){
 	[ "$1" = "" ]  && returnFalse
 	if [ -e "$1"  ]; then
@@ -571,9 +622,11 @@ replaceLine(){
 
 
 
-#write override writefile
-#$1 filename
-#$2 stream 
+# WriterFile is function write a array with string to file,
+# This function breakline to each interation!
+# Note: this function interpreter \n\t\s in stream
+# $1 filename
+#$2 stream reference
 #note a stream must to be a formatted string
 WriterFile(){
 	[ $# -lt 2 ] && returnFalse
@@ -593,6 +646,12 @@ WriterFile(){
 	
 }
 
+# WriterFileln is the function to write an array with string to file,
+# This function breakline to each interation!
+# Note: this function interprets \n\t\s from the stream
+# $1 filename
+# $2 stream 
+#note a stream must to be a formatted string
 WriterFileln(){
 	[ $# -lt 2 ] && returnFalse
 
@@ -613,6 +672,11 @@ WriterFileln(){
 }
 
 
+# This function write a string to file
+# You need to add line break in string stream
+# Note: this function interpreter \n\t\s in stream
+# $1 filename (path)
+# $2 stream (string)
 WriterFileFromStr(){
 	local filename="$1"
 	local stream="$2"
@@ -623,10 +687,12 @@ WriterFileFromStr(){
 
 
 
-#Append a file if exits
-#$1 filename
-#$2 stream reference
-#sintaxy WriterFile(char filename, char * stream )
+# Append an array content  to file if exitsy
+# This function doesn't  break line to each iteration!
+# Note: this function interpreter \n\t\s in stream
+# $1 filename
+# $2 stream reference
+# sintaxy AppendFile(char filename, char * stream )
 #note a stream must to be a formatted string
 AppendFile(){
 	[ $# -lt 2 ] && returnFalse
@@ -647,6 +713,13 @@ AppendFile(){
 	fi
 }
 
+# Append a file if exits with breaklines
+# This function breakline to each interation!
+# Note: this function interpreter \n\t\s in stream
+#$1 filename
+#$2 stream reference
+#sintaxy WriterFile(char filename, char * stream )
+#note a stream must to be a formatted string
 AppendFileln(){
 	[ $# -lt 2 ] && returnFalse
 
@@ -666,6 +739,8 @@ AppendFileln(){
 	fi
 }
 
+# Insert Unique Blank Line
+# $1 is filepath
 InsertUniqueBlankLine(){
 
 	([ "$1" = "" ] ||[  ! -e "$1" ]) && returnFalse
@@ -676,6 +751,8 @@ InsertUniqueBlankLine(){
 
 }
 
+# Check if user is Root and exit
+# This function is to deny running with as root
 IsUserRoot(){
 	if  [  "$UID" = "0" ];then #impede que o script seja executado pelo root 
 		printf "${VERMELHO}Error:${NORMAL} ${NEGRITO}$1${NORMAL} don't support running as root!!!\nExiting...\n" >&2 # >&2 is a file descriptor to /dev/stderror
@@ -699,6 +776,9 @@ WgetToStdout(){
 		WARM_ERROR_NETWORK_AND_EXIT
 	fi	
 }
+
+# Wget  is a wrapper to wget + checks
+# $1..$n common wget args
 Wget(){
 	if [ "$1" = "" ]; then echo "Wget needs a argument"; exit 1;fi
 	
@@ -709,7 +789,8 @@ Wget(){
 	fi
 }
 
-#Verifica se um ou mais arquivos estão sendo usados por processos, 
+
+# Waits one or more files are being used (locked) by processes, 
 #$1 é  mensagem que será exibida na espera ...
 IsFileBusy(){
 	if [ $# = 0 ]; then
@@ -731,7 +812,8 @@ IsFileBusy(){
 }
 
 
-#Retorna verdadeiro se o pacote $1 está instalado
+# Returns true if package $1 is installed or false otherwise
+# $1 is package name
 CheckPackageDebIsInstalled(){
 	if [ "$1" = "" ]; then 
 		echo "Package cannot be empty"
@@ -741,6 +823,8 @@ CheckPackageDebIsInstalled(){
 	[[ "$(exec 2> /dev/null dpkg -s  "$1")" =~ $regex_install ]]
 }
 
+# Returns version of $package installed or ''
+# $1 is package  name
 getDebPackVersion(){
 	if CheckPackageDebIsInstalled "$1"; then 
 		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g'
@@ -751,6 +835,8 @@ getDebPackVersion(){
 }
 
 
+# export DEBIAN_FRONTEND, if supported
+# No need args
 getCurrentDebianFrontend(){
 	if tty | grep pts/[0-9] > /dev/null ; then 
 		CheckPackageDebIsInstalled "$GTK_DEBIAN_FRONTEND_DEP" 
@@ -777,12 +863,15 @@ getCurrentDebianFrontend(){
 
 }
 
+# Wait to unlock APT/DPKG locks
+# No need args
 waitAptDpkg(){
 	IsFileBusy apt ${APT_LOCKS[*]}
 	rm -f ${APT_LOCKS[*]}
 }
 
-#Essa instala um ou mais pacotes from apt 
+#Install one or more  debian packages with checks
+# $1..$n is string of packages
 AptInstall(){
 	
 	local apt_opts=(-y --allow-unauthenticated)
@@ -807,6 +896,10 @@ AptInstall(){
 	apt-get autoclean
 }
 
+# This function writes the files from third-party repositories, but does not add the keys,
+# Note: Recommended to use the ConfigureSourcesList function, for a complete configuration!
+# $1 is a reference to the sources.lists array path,
+# $2 is a reference to the mirror array (contents)
 writeAptMirrors(){
 	if !( isVariableArray $1 && isVariableArray $2); then 
 		returnFalse
@@ -828,6 +921,8 @@ writeAptMirrors(){
 	}'
 }
 
+# Configure APT repositories through an array with script download url
+# $1 is a reference to the script array
 ConfigureSourcesListByScript(){
 	if [ $# -lt 1 ]; then return 1; fi
 
@@ -838,6 +933,8 @@ ConfigureSourcesListByScript(){
 	
 }
 
+# Add APT repository keys via a URL array
+# $1 is a reference to the Apt Keys array
 getAptKeys(){
 	if [ $# -lt 1 ] || [ "$1" = "" ] ; then return 1; fi
 
@@ -847,6 +944,10 @@ getAptKeys(){
 	arrayMap $1 key 'Wget -qO- "$key" | apt-key add - '
 	
 }
+# Configure 3th party sources, using array of apt_keys, paths and mirrors
+# $1 is reference to array of APT keys
+# $2 is reference to array to apt sources.list paths,
+# $3 is reference to array mirros, 
 
 ConfigureSourcesList(){
 	if [ $# -lt 3 ]; then return 1; fi
@@ -855,7 +956,8 @@ ConfigureSourcesList(){
 	writeAptMirrors $2 $3
 }
 
-
+# Check if the minimum common-shell-lib dependencies are installed
+# If not, they are installed
 CheckMinDeps(){
 	local filterNotFoundPackage=()
 	arrayFilter COMMON_SHELL_MIN_DEPS dep filterNotFoundPackage '! CheckPackageDebIsInstalled $dep'
