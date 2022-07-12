@@ -35,6 +35,10 @@
 #	replace $(whoami) for $UID in isUserRoot
 #	add new apt function tests
 #	add system functions tests
+#Important change in version 0.3.0!!
+#Functions that take few arguments are returned $BASH_FALSE
+#+	changeDirectory
+#+	 WriterFile family of functions
 
 #GLOBAL VARIABLES
 #----ColorTerm
