@@ -485,14 +485,14 @@ splitStr(){
 
 #cd not a native command, is a systemcall used to exec, read more in exec man 
 changeDirectory(){
-	if [ "$1" != "" ] ; then
-		if [ -e "$1"  ]; then
-			cd "$1"
-		else
-			echo "\"$1\" does not exists!" &<2
-			exit 1
-		fi
-	fi 
+	[ "$1" = "" ]  && returnFalse
+	if [ -e "$1"  ]; then
+		cd "$1"
+	else
+		echo "\"$1\" does not exists!" &<2
+		exit 1
+	fi
+	
 }
 
 
@@ -619,7 +619,7 @@ WriterFileFromStr(){
 
 
 
-#Append a file if exists
+#Append a file if exits
 #$1 filename
 #$2 stream reference
 #sintaxy WriterFile(char filename, char * stream )

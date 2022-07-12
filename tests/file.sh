@@ -182,7 +182,7 @@ testWriterFileFromStr(){
 testChangeDirectory(){
 	local test_chdir_path=$(mktemp -d -t chdir.XXXXXXXXXXXXX)
 	changeDirectory ''
-	assertTrue '[It does nothing if it has few arguments]' $?
+	assertFalse '[It does nothing if it has few arguments]' $?
 
 	changeDirectory "$test_chdir_path"
 	assertEquals "$PWD" "$test_chdir_path"
