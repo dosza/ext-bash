@@ -207,6 +207,21 @@ testWaitAptDpkg(){
 }
 
 
+testCheckMinDeps(){
+
+    CheckPackageDebIsInstalled(){ return $BASH_TRUE; }
+    apt-get(){ return $BASH_TRUE ;}
+
+    CheckMinDeps
+    assertTrue '[Return true if minimal deps is installed]' $?
+    
+    apt-get(){ return $BASH_FALSE; }
+
+    CheckMinDeps
+    assertTrue '[Installing minimal common deps if not installed wget]' $?
+}
+
+
 forEach APT_LOCKS lock 'lock="${FAKE_ROOT_TEST_DIR}${lock}"
     mkdir -p "$(dirname $lock)"'
 . $(which shunit2)

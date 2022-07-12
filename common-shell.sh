@@ -65,7 +65,7 @@ APT_LOCKS=(
 	"/var/lib/dpkg/lock-frontend"
 )
 
-COMMON_MIN_DEPS=(
+COMMON_SHELL_MIN_DEPS=(
 	coreutils
 	sed 
 	gawk
@@ -769,7 +769,7 @@ getCurrentDebianFrontend(){
 
 		if [ $is_kde_apt_frontend_installed != 0 ] && [ $is_gnome_apt_frontend_installed != 0 ] && 
 		[ $INSTALL_DEBIAN_FRONTEND = 0 ]; then 
-			COMMON_MIN_DEPS+=($GTK_DEBIAN_FRONTEND_DEP)
+			COMMON_SHELL_MIN_DEPS+=($GTK_DEBIAN_FRONTEND_DEP)
 			INSTALL_DEBIAN_FRONTEND=1
 		fi
 
@@ -832,7 +832,8 @@ ConfigureSourcesListByScript(){
 	if [ $# -lt 1 ]; then return 1; fi
 
 	! isVariableArray $1 && returnFalse
-
+	
+	CheckMinDeps
 	arrayMap $1 script 'Wget -qO- "$script" | bash - '
 	
 }
@@ -849,7 +850,16 @@ getAptKeys(){
 
 ConfigureSourcesList(){
 	if [ $# -lt 3 ]; then return 1; fi
+	CheckMinDeps
 	getAptKeys $1
 	writeAptMirrors $2 $3
 }
 
+
+CheckMinDeps(){
+	local filterNotFoundPackage=()
+	arrayFilter COMMON_SHELL_MIN_DEPS dep filterNotFoundPackage '! CheckPackageDebIsInstalled $dep'
+	if [ $(len filterNotFoundPackage) -gt 0 ]; then 
+		AptInstall ${COMMON_SHELL_MIN_DEPS[*]}
+	fi
+}
