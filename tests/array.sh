@@ -62,5 +62,47 @@ testArrayFilter(){
     assertEquals  "Daniel Davros" "${matchDNames[*]}"
 }
 
+
+testForEach(){
+    local expected_array_numbers=({3..100..5})
+    local array_numbers=({2..100..5})
+
+    local expected_five_table=({0..50..5})
+    local five_table=({0..10})
+
+
+    forEach five_table number 'number=$(echo "$number * 5"| bc )'
+
+    assertEquals "${expected_five_table[*]}" "${five_table[*]}"
+
+    inc(){
+        local current_number=$1
+        ((current_number++))
+        echo $current_number
+    }
+
+
+    forEach array_numbers number 'number=$(inc $number)'
+    assertEquals '[Running forEach without index declaration]'\
+        "${expected_array_numbers[*]}" "${array_numbers[*]}"
+
+    array_numbers=({2..100..5})
+    #Note: number is reference to array_numbers[$index]
+    printf "\t${NEGRITO}"
+    forEach array_numbers number index '
+        printf "%s " "[$index]"
+        number=$(inc $number)'
+    echo "${NORMAL}"
+    assertEquals '[Running forEach with  index declaration]'\
+        "${expected_array_numbers[*]}" "${array_numbers[*]}"
+}
+
+
+testInitArrayAsCommand(){
+    local files=`echo *`
+    local array_command=()
+    initArrayAsCommand array_command 'echo *'
+    assertEquals "${files}" "${array_command[*]}"
+}
 . $(which shunit2)
 

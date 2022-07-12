@@ -91,14 +91,14 @@ testStrRemoveShortStart(){
 
 
 
-testRemoveLongStart(){
+testStrRemoveLongStart(){
 	local str="abcABC123ABCabc" #exempla by: https://tldp.org/LDP/abs/html/string-manipulation.html
 	local shortstr="$(strRemoveLongStart "$str" 'a*C' )" #  Strip out longest match between 'a' and 'C'.
 	assertEquals "$shortstr" "abc"
 
 }
 
-testRemoveShortEnd(){
+testStrRemoveShortEnd(){
 	local str="/tmp/LAMW4Linux-master/lamw_manager/lamw_manager"
 	local shortstr="$(strRemoveShortEnd "$str" "/lamw_manager")"
 	assertEquals "$shortstr" "/tmp/LAMW4Linux-master/lamw_manager"
@@ -109,7 +109,7 @@ testRemoveShortEnd(){
 	assertEquals  "$shortstr" "bainabcdefgIJK"
 }
 
-testRemoveLongEnd(){
+testStrRemoveLongEnd(){
 	local str="xyzabcdefgIJKabcdefIJK"
 	local longstr="$(strRemoveLongEnd "$str" 'a*K')" # Strip out longest match between 'a' and 'K'.
 	assertEquals  "$longstr" "xyz"
@@ -202,6 +202,27 @@ testStrToLowerCase(){
 
 	str="My Name is Ammy Pond"
 	assertEquals "$(strToLowerCase "$str")" "my name is ammy pond"
+}
+
+testGenerateScapesStr(){
+	local str_test_scape='maria/db'
+	local expected_str_scape='maria\/db'
+	local result_test_scape=''
+
+	result_test_scape=$(GenerateScapesStr)
+	assertFalse '[Try scape a empty string ]'$?
+	assertEquals "$expected_str_scape" "$(GenerateScapesStr "$str_test_scape")"
+	assertEquals '[Try scape a string with scapes]' "$expected_str_scape" "$(GenerateScapesStr "$expected_str_scape")"
+}
+
+testStr_substring1(){
+	local str="is Daniel"
+	local aux=""
+	assertEquals "$(str_substring1 "$str" 3 7)" "Daniel"
+
+	str="The Crown Series IV"
+	aux="$( str_substring1 "$str" 10 )"
+	assertEquals  "" "$aux"
 }
 
 
