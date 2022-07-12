@@ -28,6 +28,7 @@
 #
 #v0.2.3 add $SLEEP_TIME variable and in  IsFileBusy sleep $SLEEP_TIME s
 #v0.3.0:
+#	add CheckMinDeps function, to check if the minimum common-shell-lib dependencies are installed
 # 	add forEach function
 #	remove unnecessary pipes in functions 
 #	replace grep pipes to regex bash test [[ $(expres) ~= $pattern ]]
@@ -36,9 +37,10 @@
 #	add new apt function tests
 #	add system functions tests
 #Important change in version 0.3.0!!
-#Functions that take few arguments are returned $BASH_FALSE
-#+	changeDirectory
-#+	 WriterFile family of functions
+#	Fixes bad spelling, replaces function name isVarariabelDeclared to isVariableDeclared
+#	Functions that take few arguments are returned $BASH_FALSE
+#	changeDirectory
+#	WriterFile family of functions
 
 #GLOBAL VARIABLES
 #----ColorTerm
