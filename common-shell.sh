@@ -41,6 +41,9 @@
 #	Functions that take few arguments are returned $BASH_FALSE
 #	changeDirectory
 #	WriterFile family of functions
+#v0.3.1
+#	remove unnecessary code
+#	arrayMap, arrayFilter, and forEach run faster after changes in the execution of eval
 
 #GLOBAL VARIABLES
 #----ColorTerm
@@ -143,19 +146,29 @@ isVariableDeclared(){
 #$4 is a string with command or block commands
 forEach(){
     if [ $# -lt 3 ] || [ 4 -lt $# ]; then
-        return;
-    fi;
+        return
+    fi
     if ! isVariableArray $1; then
     	return $BASH_FALSE
     fi
-    newPtr refArrayToforEach=$1;
+    newPtr refArrayToforEach=$1
 
     case $# in 
         3)
-            eval "for _forEachIdx in ${!refArrayToforEach[*]};do newPtr $2=refArrayToforEach[\$_forEachIdx]; $3; done"
+			
+            eval "for _forEachIdx in \${!refArrayToforEach[*]}
+        	do
+            	newPtr $2=refArrayToforEach[\$_forEachIdx]
+				$3
+			done"
         ;;
         4)
-            eval "for $3 in ${!refArrayToforEach[*]}; do newPtr $2=refArrayToforEach[\$$3]; $4; done"
+
+          	eval "for $3 in \${!refArrayToforEach[*]}
+          	do
+            	newPtr $2=refArrayToforEach[\$$3]
+				$4
+			done"
         ;;
     esac
 }
@@ -234,13 +247,27 @@ arrayMap(){
 
 	case $# in
 		3)
-			eval "for _mapIdx in ${!refMap[*]};do $2=\${refMap[\$_mapIdx]}; $3; done"
+
+			eval "for _mapIdx in \${!refMap[*]}
+			do
+				$2=\${refMap[\$_mapIdx]}
+				$3
+			done"
+
+
+
 		;;
 		4)
-			eval "for $3 in ${!refMap[*]}; do $2=\${refMap[\$$3]}; $4; done" #  $2=$(eval echo ${refMap[$(echo \$$3)]});$4;done"
+
+			eval "for $3 in \${!refMap[*]}
+			do
+				$2=\${refMap[\$$3]}
+				$4
+			done"
 		;;
 	esac
 }
+
 
 # This function works similarly to javascript's Array.filter
 # Receive an array and apply it to a test and storing the data in ArrayFiltred (passed by reference)
@@ -285,13 +312,15 @@ arrayFilter(){
 				_appendArrayFiltered(){ refFilter[\$$3]=\$$2 ; }
 			fi
 
-			for _filterIdx in ${!refArray[*]};do  
+			for _filterIdx in \${!refArray[*]}
+			do  
 				$2=\${refArray[\$_filterIdx]}
-				$4
-				if [ \$? = 0 ]; then 
+				if $4 ;then 
 					_appendArrayFiltered
 				fi
-			done" 
+			done"
+
+			 
 			
 		;;
 		5)
@@ -312,14 +341,14 @@ arrayFilter(){
 				_appendArrayFiltered(){ refFilter[\$$3]=\$$2 ; }
 			fi
 
-			for  $3 in ${!refArray[*]}
-			do 
+			for $3 in \${!refArray[*]}; do 
 				$2=\${refArray[\$$3]}
-				$5
-				if [ \$?  = 0 ]; then 
+				if $5; then 
 					_appendArrayFiltered
 				fi
 			done"
+
+			
 		
 		;;
 	esac
@@ -583,7 +612,7 @@ searchLineinFile(){
 			done < "$1"
 		fi
 	fi
-	return $flag # return value 
+	return $flag
 }
 
 
@@ -595,7 +624,7 @@ GenerateScapesStr(){
 	fi
 
 	local regex_double_invert_bar='\\'
-	if [[ "$1" =~ $regex_double_invert_bar ]] ; then  # se a string já está com com escape, retorne a string 
+	if [[ "$1" =~ $regex_double_invert_bar ]] ; then 
 		echo "$1"; return 
 	fi
 
@@ -615,7 +644,7 @@ replaceLine(){
 
 	if [ ! -e "$1" ]; then 
 		echo "There is no \"$1\" file"
-		return 1;
+		return 1
 	fi
 	local str_to_find="$2"
 	local str_to_replace="$3"
@@ -746,9 +775,9 @@ AppendFileln(){
 InsertUniqueBlankLine(){
 
 	([ "$1" = "" ] ||[  ! -e "$1" ]) && returnFalse
-	local aux=$(tail -1 "$1" )       #tail -1 mostra a última linha do arquivo 
-	if [ "$aux" != "" ] ; then   # verifica se a última linha é vazia
-		sed  -i '$a\' "$1" #adiciona uma linha ao fim do arquivo
+	local aux=$(tail -1 "$1" )      
+	if [ "$aux" != "" ] ; then  
+		sed  -i '$a\' "$1"
 	fi
 
 }
@@ -756,7 +785,7 @@ InsertUniqueBlankLine(){
 # Check if user is Root and exit
 # This function is to deny running with as root
 IsUserRoot(){
-	if  [  "$UID" = "0" ];then #impede que o script seja executado pelo root 
+	if  [  "$UID" = "0" ];then
 		printf "${VERMELHO}Error:${NORMAL} ${NEGRITO}$1${NORMAL} don't support running as root!!!\nExiting...\n" >&2 # >&2 is a file descriptor to /dev/stderror
 		exit 1
 	fi
@@ -797,17 +826,17 @@ Wget(){
 IsFileBusy(){
 	if [ $# = 0 ]; then
 		echo "IsFileBusy needs a argument"
-		exit 1;
+		exit 1
 	fi
 
 	local args=($*)
 	unset args[0]
 	local msg=0
-	while fuser ${args[*]} > /dev/null 2<&1 #enquato os arquivos estiverem ocupados ....
+	while fuser ${args[*]} > /dev/null 2<&1
 	do
 		if  [ $msg = 0 ]; then 
 			echo "Wait for $1..."
-			msg=1;
+			msg=1
 		fi
 		sleep $SLEEP_TIME
 	done
@@ -832,7 +861,7 @@ getDebPackVersion(){
 		exec 2> /dev/null dpkg -s "$1" | grep '^Version' | sed 's/Version:\s*//g'
 	else
 		echo ""
-		return 1;
+		return 1
 	fi
 }
 
