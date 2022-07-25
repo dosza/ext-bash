@@ -44,6 +44,9 @@
 #v0.3.1
 #	remove unnecessary code
 #	arrayMap, arrayFilter, and forEach run faster after changes in the execution of eval
+#v0.3.2
+#	Run arrayMap without index faster
+#	Change loop syntax to protected mode, replace * with @
 
 #GLOBAL VARIABLES
 #----ColorTerm
@@ -93,7 +96,7 @@ initArrayAsCommand(){
 # Check if the variable is an array
 # $1 is is variable name
 isVariableArray(){
-	local query_var=$(declare -p "$1" 2> /dev/null)
+	local query_var=$(declare -p "$1" 2> /dev/null)		
 	local array_regex_pattern='^declare -[aA]' 
 	[[ $query_var =~ $array_regex_pattern ]]
 }
@@ -248,15 +251,12 @@ arrayMap(){
 	case $# in
 		3)
 
-			eval "for _mapIdx in \${!refMap[*]}
+			eval "for $2 in \"\${refMap[@]}\"
 			do
-				$2=\${refMap[\$_mapIdx]}
 				$3
 			done"
-
-
-
 		;;
+
 		4)
 
 			eval "for $3 in \${!refMap[*]}
@@ -312,9 +312,8 @@ arrayFilter(){
 				_appendArrayFiltered(){ refFilter[\$$3]=\$$2 ; }
 			fi
 
-			for _filterIdx in \${!refArray[*]}
+			for $2 in \"\${refArray[@]}\"
 			do  
-				$2=\${refArray[\$_filterIdx]}
 				if $4 ;then 
 					_appendArrayFiltered
 				fi
