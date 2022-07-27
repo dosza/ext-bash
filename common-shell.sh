@@ -2,8 +2,8 @@
 #-------------------------------------------------------------------------------------------------#
 #Universidade federal de Mato Grosso (mater-alma)
 #Course: Science Computer
-#version: 0.3.0
-#Date: 07/07/2022
+#version: 0.3.2
+#Date: 26/07/2022
 #Description: Thi script provides common shell functions
 #-------------------------------------------------------------------------------------------------#
 
@@ -46,7 +46,8 @@
 #	arrayMap, arrayFilter, and forEach run faster after changes in the execution of eval
 #v0.3.2
 #	Run arrayMap without index faster
-#	Change loop syntax to protected mode, replace * with @
+#	Change loop syntax to protected mode, replace * with @		
+# Run arrayFilter faster after removing unnecessary function call and commands
 
 #GLOBAL VARIABLES
 #----ColorTerm
@@ -305,19 +306,22 @@ arrayFilter(){
 
 			refFilter=()
 				
-			eval "isVariableAssociativeArray $3
-			if [ \$? != 0  ]; then 
-				_appendArrayFiltered(){ refFilter+=(\$$2) ; }
-			else
-				_appendArrayFiltered(){ refFilter[\$$3]=\$$2 ; }
-			fi
 
-			for $2 in \"\${refArray[@]}\"
-			do  
-				if $4 ;then 
-					_appendArrayFiltered
-				fi
-			done"
+			if ! isVariableAssociativeArray $1; then 
+				eval "for $2 in \"\${refArray[@]}\" 
+				do
+					if $4; then 
+						refFilter+=(\$$2);
+					fi
+				done"
+			else 
+				eval "for _filterIdx in \${!refArray[@]}; do
+					$2=\${refArray[\$_filterIdx]}
+					if $4; then
+						refFilter[\$_filterIdx]=\$$2
+					fi
+				done"
+			fi
 
 			 
 			
@@ -332,26 +336,24 @@ arrayFilter(){
 
 			refFilter=()
 			
-
-			eval "isVariableAssociativeArray $4
-			if [ \$? != 0  ]; then 
-				_appendArrayFiltered(){ refFilter+=(\$$2) ; }
-			else
-				_appendArrayFiltered(){ refFilter[\$$3]=\$$2 ; }
-			fi
-
-			for $3 in \${!refArray[*]}; do 
-				$2=\${refArray[\$$3]}
-				if $5; then 
-					_appendArrayFiltered
-				fi
-			done"
-
-			
+			if ! isVariableAssociativeArray $1; then 
+				eval "for $3 in \"\${!refArray[@]}\"; do 
+					$2=\${refArray[\$$3]}	
+					if $5; then 
+						refFilter+=(\$$2)
+					fi
+				done"
+			else 
+				eval "for $3 in \${!refArray[@]}; do 
+					$2=\${refArray[\$$3]}
+					if $5; then 
+						refFilter[\$$3]=\$$2
+					fi
+				done"
+			fi	
 		
 		;;
 	esac
-	unset _appendArrayFiltered
 }
 
 
