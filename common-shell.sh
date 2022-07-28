@@ -311,14 +311,14 @@ arrayFilter(){
 				eval "for $2 in \"\${refArray[@]}\" 
 				do
 					if $4; then 
-						refFilter+=(\$$2);
+						refFilter+=(\"\$$2\");
 					fi
 				done"
 			else 
 				eval "for _filterIdx in \${!refArray[@]}; do
 					$2=\${refArray[\$_filterIdx]}
 					if $4; then
-						refFilter[\$_filterIdx]=\$$2
+						refFilter[\$_filterIdx]=\"\$$2\"
 					fi
 				done"
 			fi
@@ -340,14 +340,14 @@ arrayFilter(){
 				eval "for $3 in \"\${!refArray[@]}\"; do 
 					$2=\${refArray[\$$3]}	
 					if $5; then 
-						refFilter+=(\$$2)
+						refFilter+=(\"\$$2\")
 					fi
 				done"
 			else 
 				eval "for $3 in \${!refArray[@]}; do 
 					$2=\${refArray[\$$3]}
 					if $5; then 
-						refFilter[\$$3]=\$$2
+						refFilter[\$$3]=\"\$$2\"
 					fi
 				done"
 			fi	
