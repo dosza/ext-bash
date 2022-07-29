@@ -160,17 +160,17 @@ forEach(){
     case $# in 
         3)
 			
-            eval "for _forEachIdx in \${!refArrayToforEach[*]}
-        	do
-            	newPtr $2=refArrayToforEach[\$_forEachIdx]
+			eval "for _forEachIdx in \${!refArrayToforEach[*]}
+			do
+				newPtr $2=refArrayToforEach[\$_forEachIdx]
 				$3
 			done"
         ;;
         4)
 
-          	eval "for $3 in \${!refArrayToforEach[*]}
-          	do
-            	newPtr $2=refArrayToforEach[\$$3]
+			eval "for $3 in \${!refArrayToforEach[*]}
+			do
+				newPtr $2=refArrayToforEach[\$$3]
 				$4
 			done"
         ;;
