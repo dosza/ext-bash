@@ -51,14 +51,13 @@
 
 #GLOBAL VARIABLES
 #----ColorTerm
-VERDE=$'\e[1;32m'
-AMARELO=$'\e[01;33m'
-SUBLINHADO=$'4'
-NEGRITO=$'\e[1m'
-VERMELHO=$'\e[1;31m'
-VERMELHO_SUBLINHADO=$'\e[1;4;31m'
-AZUL=$'\e[1;34m'
-NORMAL=$'\e[0m'
+GREEN=$'\e[1;32m'
+YELLOW=$'\e[1;33m'
+BOLD=$'\e[1m'
+RED=$'\e[1;31m'
+RED_UNDERLINED=$'\e[1;4;31m'
+BLUE=$'\e[1;34m'
+DEFAULT=$'\e[0m'
 GTK_DEBIAN_FRONTEND_DEP="libgtk3-perl"
 KDE_DEBIAN_FRONTEND_DEP="debconf-kde-helper"
 BASH_TRUE=0
