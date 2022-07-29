@@ -5,8 +5,9 @@
 
 What is?
 ---
-**Extended Bash Library** is a superset for the bash shell that provides easier and more readable functions using bash expansions
-In addition to providing functions and resources inspired by other languages such as: javascript, python
+**Extended Bash Library** is a superset for the bash shell!
+This superset aims to create a more readable shell script and add functionality inspired by other languages, such as pyhton and javascript.
+
 Some methods have been adapted from javascript that work in a similar way, such as:
 +	``` arrayMap()```: works similar to Array.map, but does not return an array
 +	``` arrayFilter()```: works with syntax and behavior similar to array.filter, but the penultimate argument must be the NAME of the return array
@@ -16,11 +17,10 @@ From python:
 +	``` len()```, returns to stdout the size of an array, the size of a string passed by reference, or a simple string
 +	``` Split()```, has the same behavior as python's split() method
 
-Curiosity
----
-Previously the library was called "Common Shell Library", but from now on ( 07/28/2022) it is called "Extended Bash Library
+#### Curiosity ####
 
-"Extended Bash Library" name was inspired by the extended family of filesystems (ext2, ext3, ext4)...
+Previously the library was called "Common Shell Library", but from now on ( 07/28/2022 ) it is called "Extended Bash Library"
+<br/>"Extended Bash Library" name was inspired by the extended family of filesystems (ext2, ext3, ext4)...
 
 Pseudo keywords
 ---
@@ -87,7 +87,7 @@ In array functions the command must be enclosed in single quotes:
 +	```arrayToString(array)```
 +	```arraySlice(array,offset,arraySliced)``` || ```arraySlice(array,offset,length,arraySliced)```
 +	```forEach(array,item '{commands...}')``` //execute one or more commands, on each item in array, forEach is a function similar to arrayMap, but the iterator is a reference to the current element of the array
-<br/>	```initArrayAsCommand(array, '{commands'})``` //init an array as output of '{ commands }'
++	```initArrayAsCommand(array, '{commands'})``` //init an array as output of '{ commands }'
 
 
 
@@ -211,7 +211,7 @@ ConfigureSourcesList apt_key_url_repository mirrors repositorys
 
 ### sample: setting repository by url script download
 ```bash
-source ./common-shell
+source ./extended-bash.sh
 # Configuring nodejs repository sample
 scripts_url=(
   https://deb.nodesource.com/setup_lts.x 
