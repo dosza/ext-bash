@@ -94,5 +94,28 @@ testIsVariableDeclared(){
 
 }
 
+tesTypeInt(){
+	unset i
+	int i=0
+	assertEquals '[Declaration of variable type int]' 'declare -i' "$(declare -p i)"
+}
+
+testTypeDict(){
+	unset cat
+	dict cat=(
+		["Kingdom"]="Animalia"
+		["Phylum"]="Chordata"
+		["Class"]="Mammalia"
+		["Order"]="Carnivora"
+		["Family"]="Felidae"
+		["Genus"]="Felis"
+		["Species"]="catus"
+	)
+	
+	[[ "$(declare -p cat)" =~ ^'declare -A' ]]
+	assertTrue '[Declaration of associative array]' $?
+	
+}
+
 
 . $(which shunit2)

@@ -81,6 +81,9 @@ COMMON_SHELL_MIN_DEPS=(
 )
 
 shopt  -s expand_aliases
+
+alias int='declare -i'
+alias dict='declare -A'
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
 alias returnFalse='return $BASH_FALSE'
