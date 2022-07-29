@@ -1,5 +1,5 @@
 #!/bin/bash
-source ../common-shell.sh
+source ../extended-bash.sh
 if [ "$(which shunit2)" = "" ]; then
 	echo "missing shunit2"
 	if [  "$(which wget)" = "" ]; then

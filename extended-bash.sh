@@ -12,13 +12,13 @@
 #v0.1.0 add support to write a array to file, get a file (with validation)
 #v0.2.0 add advanced support manipulation of string 
 #v0.2.1 add support:
-#		get len from string, from variable
-# 		check if array is assoative
-#		init Array as Command
-# 		add CheckPackageDebIsInstalled
-# 		add get
-# 		fixes: writeAptMirrors
-#		fixes getAptKeys
+#	get len from string, from variable
+#	check if array is assoative
+#	init Array as Command
+#	add CheckPackageDebIsInstalled
+#	add get
+#	fixes: writeAptMirrors
+#	fixes getAptKeys
 #v0.2.2 add suport
 #	add WaitToAPTDpkg to wait and remove ${APT_LOCKS[*]}
 #	add MIN_COMMON_DEPS variable with apt/dpkg deps
@@ -36,7 +36,7 @@
 #	replace $(whoami) for $UID in isUserRoot
 #	add new apt function tests
 #	add system functions tests
-#Important change in version 0.3.0!!
+#	Important change in version 0.3.0!!
 #	Fixes bad spelling, replaces function name isVarariabelDeclared to isVariableDeclared
 #	Functions that take few arguments are returned $BASH_FALSE
 #	changeDirectory
@@ -47,18 +47,17 @@
 #v0.3.2
 #	Run arrayMap without index faster
 #	Change loop syntax to protected mode, replace * with @		
-# Run arrayFilter faster after removing unnecessary function call and commands
+#	Run arrayFilter faster after removing unnecessary function call and commands
 
 #GLOBAL VARIABLES
 #----ColorTerm
-VERDE=$'\e[1;32m'
-AMARELO=$'\e[01;33m'
-SUBLINHADO=$'4'
-NEGRITO=$'\e[1m'
-VERMELHO=$'\e[1;31m'
-VERMELHO_SUBLINHADO=$'\e[1;4;31m'
-AZUL=$'\e[1;34m'
-NORMAL=$'\e[0m'
+GREEN=$'\e[1;32m'
+YELLOW=$'\e[1;33m'
+BOLD=$'\e[1m'
+RED=$'\e[1;31m'
+RED_UNDERLINED=$'\e[1;4;31m'
+BLUE=$'\e[1;34m'
+DEFAULT=$'\e[0m'
 GTK_DEBIAN_FRONTEND_DEP="libgtk3-perl"
 KDE_DEBIAN_FRONTEND_DEP="debconf-kde-helper"
 BASH_TRUE=0
@@ -82,6 +81,9 @@ COMMON_SHELL_MIN_DEPS=(
 )
 
 shopt  -s expand_aliases
+
+alias int='declare -i'
+alias dict='declare -A'
 alias newPtr='declare -n'
 alias isFalse='if [ $? != 0 ]; then return 1; fi'
 alias returnFalse='return $BASH_FALSE'
@@ -136,18 +138,18 @@ isVariableDeclared(){
 	declare -p "$1"  &> /dev/null
 }
 
-#forEach is a function similar to arrayMap, but the iterator is a reference to the current element of the array
+# forEach is a function similar to arrayMap, but the iterator is a reference to the current element of the array
 
-#form 1:
-#$1 is array name
-#$2 is iterator name
-#$3 is a string with command or block commands
+# form 1:
+# $1 is array name
+# $2 is iterator name
+# $3 is a string with command or block commands
 
 ##form 2:
-#$1 is array name
-#$2 is iterator name
-#$3 is index or key for associative Arrays
-#$4 is a string with command or block commands
+# $1 is array name
+# $2 is iterator name
+# $3 is index or key for associative Arrays
+# $4 is a string with command or block commands
 forEach(){
     if [ $# -lt 3 ] || [ 4 -lt $# ]; then
         return
@@ -160,17 +162,17 @@ forEach(){
     case $# in 
         3)
 			
-            eval "for _forEachIdx in \${!refArrayToforEach[*]}
-        	do
-            	newPtr $2=refArrayToforEach[\$_forEachIdx]
+			eval "for _forEachIdx in \${!refArrayToforEach[*]}
+			do
+				newPtr $2=refArrayToforEach[\$_forEachIdx]
 				$3
 			done"
         ;;
         4)
 
-          	eval "for $3 in \${!refArrayToforEach[*]}
-          	do
-            	newPtr $2=refArrayToforEach[\$$3]
+			eval "for $3 in \${!refArrayToforEach[*]}
+			do
+				newPtr $2=refArrayToforEach[\$$3]
 				$4
 			done"
         ;;
@@ -240,7 +242,7 @@ arrayToString(){
 #using form1:
 # arrayMap names name 'echo $name'
 #using form2:
-#arrayMap names name index 'echo ${names[index]}'
+# arrayMap names name index 'echo ${names[index]}'
 
 arrayMap(){
 
@@ -311,14 +313,14 @@ arrayFilter(){
 				eval "for $2 in \"\${refArray[@]}\" 
 				do
 					if $4; then 
-						refFilter+=(\$$2);
+						refFilter+=(\"\$$2\");
 					fi
 				done"
 			else 
 				eval "for _filterIdx in \${!refArray[@]}; do
 					$2=\${refArray[\$_filterIdx]}
 					if $4; then
-						refFilter[\$_filterIdx]=\$$2
+						refFilter[\$_filterIdx]=\"\$$2\"
 					fi
 				done"
 			fi
@@ -340,14 +342,14 @@ arrayFilter(){
 				eval "for $3 in \"\${!refArray[@]}\"; do 
 					$2=\${refArray[\$$3]}	
 					if $5; then 
-						refFilter+=(\$$2)
+						refFilter+=(\"\$$2\")
 					fi
 				done"
 			else 
 				eval "for $3 in \${!refArray[@]}; do 
 					$2=\${refArray[\$$3]}
 					if $5; then 
-						refFilter[\$$3]=\$$2
+						refFilter[\$$3]=\"\$$2\"
 					fi
 				done"
 			fi	
@@ -404,10 +406,11 @@ strGetSubstring(){
 
 # get a substring  with of str with offset and length, is a funtion to expansion ${str:$offset:$length}
 # $1 is a string, note:
-# $2 is a offset# arrayFilter names name matchD '[[ "$name" =~ $regex_stard_with_d  ]]'
+# $2 is a offset
+# arrayFilter names name matchD '[[ "$name" =~ $regex_stard_with_d  ]]'
 # $3 is a length of string
 # returns to stdout of substring
-#note is small implementation 
+#sote is small implementation 
 str_substring1(){
     echo "${1:$2:$3}"
 }
@@ -596,8 +599,8 @@ isUsersSudo(){
 
 }
 # searchLineinFile(FILE *fp, char * str )
-#$1 is File Path
-#$2 is a String to search 
+# $1 is File Path
+# $2 is a String to search 
 #this function return 0 if not found or 1  if found
 searchLineinFile(){
 	local flag=0
@@ -658,7 +661,7 @@ replaceLine(){
 # This function breakline to each interation!
 # Note: this function interpreter \n\t\s in stream
 # $1 filename
-#$2 stream reference
+# $2 stream reference
 #note a stream must to be a formatted string
 WriterFile(){
 	[ $# -lt 2 ] && returnFalse
@@ -748,9 +751,9 @@ AppendFile(){
 # Append a file if exits with breaklines
 # This function breakline to each interation!
 # Note: this function interpreter \n\t\s in stream
-#$1 filename
-#$2 stream reference
-#sintaxy WriterFile(char filename, char * stream )
+# $1 filename
+# $2 stream reference
+# sintaxy WriterFile(char filename, char * stream )
 #note a stream must to be a formatted string
 AppendFileln(){
 	[ $# -lt 2 ] && returnFalse
@@ -793,8 +796,8 @@ IsUserRoot(){
 }
 
 #run wget and save data on refenciable variable
-#$1 is reference variable (  )
-#${@:2} is a url and other wget opts
+# $1 is reference variable (  )
+# ${@:2} is a url and other wget opts
 
 WgetToStdout(){
 	local wget_opts="-c --timeout=$WGET_TIMEOUT -qO-"
@@ -823,7 +826,7 @@ Wget(){
 
 
 # Waits one or more files are being used (locked) by processes, 
-#$1 é  mensagem que será exibida na espera ...
+# $1 é  mensagem que será exibida na espera ...
 IsFileBusy(){
 	if [ $# = 0 ]; then
 		echo "IsFileBusy needs a argument"
