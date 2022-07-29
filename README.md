@@ -5,30 +5,56 @@
 
 What is?
 ---
-Bash Extended Library is a superset for the bash shell that provides easier and more readable functions using bash expansions
+**Extended Bash Library** is a superset for the bash shell that provides easier and more readable functions using bash expansions
 In addition to providing functions and resources inspired by other languages such as: javascript, python
 Some methods have been adapted from javascript that work in a similar way, such as:
-+ arrayMap(): works similar to Array.map, but does not return an array
-+ arrayFilter(): works with syntax and behavior similar to array.filter, but the penultimate argument must be the NAME of the return array
-+ forEach(), a function that at each iteration points a reference to the current item in an array
++ ```arrayMap()```: works similar to Array.map, but does not return an array
++ ```arrayFilter()```: works with syntax and behavior similar to array.filter, but the penultimate argument must be the NAME of the return array
++ ```forEach()```, a function that at each iteration points a reference to the current item in an array
 
 From python:
-+ len(), returns to stdout the size of an array, the size of a string passed by reference, or a simple string
-+ Split(), has the same behavior as python's split() method
++ ```len()```, returns to stdout the size of an array, the size of a string passed by reference, or a simple string
++ ```Split()```, has the same behavior as python's split() method
 
-Motivation 
+Curiosity
 ---
-[UFMT-LAB-Tools](https://github.com/dosza/ufmt-cua-lab-tools),[PostInstall](https://github.com/dosza/Linux-PostInstall) and [LAMW Manager](https://github.com/dosza/lamwmanager-linux) are command line tools that automate the installation of many software.
-From the development of these tools, it is observed that there is a set of routines that can be standardized.
-This level of automation usually requires the execution of commands with poorly readable syntax. 
-The idea is to provide a level of abstraction (generic) that the *user* can use in his context.
+Previously the library was called "Common Shell Library", but from now on ( 07/28/2022 ) it is called "Extended Bash Library"
+
+"Extended Bash Library" name was inspired by the extended family of filesystems (ext2, ext3, ext4)...
+
+Pseudo keywords
+---
+Bash does not have these keywords, but aliases have been created to make it easier to declare certain types
++	```int```, declare  variable as integer with attribute
++ ```dict```, declare variable as associative array
++ ```newPtr```, declare variable as reference to named variable
+
+### Considerations about scope of variables: ###
+When using these pseudotypes in a function, the variables are locally scoped!<br/>To declare them as global variables, add the -g parameter<br/>Local variables are visible to the function in which they are defined, as well as their children¹
+
+
+Example: 
+```bash
+f(){
+	# Makes x a global variable
+	int -g x=0
+	# Makes names a global variable
+	dict -g names=()
+}
+f
+```
+
+
 
 Advantages
 ---
 Rapid development of installation and configuration scripts using WriterFileln function families
-Support for referencing variables using the newPtr keyword (alias to declare -n )
-Easy development of installers for debian systems, using custom APT functions
+<br/>Support for referencing variables using the newPtr keyword (alias to ```declare -n```)
+
++ Easy development of installers for debian systems, using custom APT functions
 + Facilitates repository configuration, using the function
++ Import some concepts and facilities from python and javascripts to bash
++ It is a library that has passed unit tests!!
 
 Functions
 ---
@@ -36,45 +62,47 @@ Note: a shell function is declared by Name(){COMMANDS;} or function Name{ COMMAN
 Each argument is referenced by \$1..\$n.
 
 The list below includes the parameters within the parentheses for teaching purposes.
-+ replaceLine(file,string_to_find,string_to_replace)
-+ deleteLine(file,line_to_delete)
-+ scappeString(str) //
-+ AptInstall(packages) //install apt packages
++ ```replaceLine(file,string_to_find,string_to_replace)```
++ ```deleteLine(file,line_to_delete)```
++ ```scappeString(str)``` //
++ ```AptInstall(packages)``` //install apt packages
 
 New: String manipulation functions
 ---
-+ strLen(str) //returns to output of length of string, a equivalent C strlen()
-+ strGetSubstring(str,offset,length) // returns to output a str delimeted of offset and lenght
-+ strGetCurrentChar(str,index) //returns to output a char delimited by index, a equivalent C str[index];
-+ Split(str,delimiter,ref_array) // split (using a builtin command) a string and store in ref_array ( ref_array is a reference to array )
-+ splitStr(str,delimiter,ref_array) split a string and store in ref_array
++ ```strLen(str)``` //returns to output of length of string, a equivalent C strlen()
++ ```strGetSubstring```(str,offset,length) // returns to output a str delimeted of offset and lenght
++ ```strGetCurrentChar(str,index)``` //returns to output a char delimited by index, a equivalent C str[index];
++ ```Split(str,delimiter,ref_array)``` // split (using a builtin command) a string and store in ref_array ( ref_array is a reference to array )
++ ```splitStr(str,delimiter,ref_array)``` split a string and store in ref_array
 
 New: Array Functions
 ---
-+ arrayMap(array,item, '{commands...}') // executes 'one or more commands' on each item in an array.
-+ arrayFilter(array, item, filteredItems, '[conditions]')
-+ arrayToString(array)
-+ arraySlice(array,offset,arraySliced) || arraySlice(array,offset,length,arraySliced)
-+ forEach(array,item '{commands...}') //execute one or more commands, on each item in array, forEach is a function similar to arrayMap, but the iterator is a reference to the current element of the array
-+	initArrayAsCommand(array, '{commands'}) //init an array as output of '{ commands }'
+**Important note!!**<br/>
+In array functions the command must be enclosed in single quotes: **'**
++ ```arrayMap(array,item, '{commands...}')``` // executes 'one or more commands' on each item in an array.
++ ```arrayFilter(array, item, filteredItems, '[conditions]')```
++ ```arrayToString(array)```
++ ```arraySlice(array,offset,arraySliced)``` || ```arraySlice(array,offset,length,arraySliced)```
++ ```forEach(array,item '{commands...}')``` //execute one or more commands, on each item in array, forEach is a function similar to arrayMap, but the iterator is a reference to the current element of the array
++	```initArrayAsCommand(array, '{commands'})``` //init an array as output of '{ commands }'
 ---
 
 
 New: APT functions
 ---
 This family call APT functions with -y and check erros param
-+ AptInstall(args...) #install packages without need confirm action
-+ getCurrentDebianFrontend() # set (if is possible) DEBIAN_FRONTEND=
-+ getAptKeys(array_key_ref) # import apt keys to Apt from array of Urls: note
-+ getDebPackVersion # returns a version of package  (.deb) installed
-+ ConfigureSourcesListByScript(scripts_url) configure sources from array of url scripts (apt)
-+ ConfigureSourcesList(repository, mirrors,apt_keys), configure sources
++ ```AptInstall(args...)``` #install packages without need confirm action
++ ```getCurrentDebianFrontend()``` # set (if is possible) DEBIAN_FRONTEND=
++ ```getAptKeys(array_key_ref)``` # import apt keys to Apt from array of Urls: note
++ ```getDebPackVersion``` # returns a version of package  (.deb) installed
++ ```ConfigureSourcesListByScript(scripts_url)``` configure sources from array of url scripts (apt)
++ ```ConfigureSourcesList(repository, mirrors,apt_keys)```, configure sources
 
 
 ## Samples:
 
 ### len function
-Note: The **len** function can determine to infer the type of argument, if it is the name of a variable or a simple string
+Note: The ```len``` function can determine to infer the type of argument, if it is the name of a variable or a simple string
 
 
 #### A length of ${#names[@]}
@@ -186,3 +214,9 @@ scripts_url=(
   https://deb.nodesource.com/setup_lts.x 
 )
 ConfigureSourcesListByScript scripts_url #note requires admin 
+```
+
+
+References
+---
+[1](https://linux.die.net/man/1/bash) Bash Manual.
