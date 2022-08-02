@@ -25,7 +25,7 @@ Previously the library was called "Common Shell Library", but from now on ( 07/2
 Pseudo keywords
 ---
 Bash does not have these keywords, but aliases have been created to make it easier to declare certain types
-+	```int```, declare  variable as integer with attribute
++	```int```, declare  variable with 'integer' attribute
 +	``` dict```, declare variable as associative array
 +	``` newPtr```, declare variable as reference to named variable
 
@@ -36,10 +36,10 @@ When using these pseudotypes in a function, the variables are locally scoped!<br
 Example: 
 ```bash
 f(){
-	# Makes x a global variable
-	int -g x=0
-	# Makes names a global variable
-	dict -g names=()
+	# Makes X a global variable
+	int -g X=0
+	# Makes NAMES a global variable
+	dict -g NAMES=()
 }
 f
 ```
