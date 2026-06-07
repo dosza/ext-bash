@@ -1,6 +1,7 @@
 #!/bin/bash
 
 source ./get-shunit2
+
 testIsArrayEmpty(){
     local array=()
     local fake_array=''

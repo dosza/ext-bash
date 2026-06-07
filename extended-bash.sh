@@ -380,7 +380,7 @@ strToLowerCase(){
 
 }
 
-# returns to stdout a string  to UpperCase
+# returns to stdout a string  to UpperCase 
 # $1 is a string 
 strToUpperCase(){
 	if [ "$1" = "" ]; then return 1 ; fi
@@ -1012,139 +1012,32 @@ getAptKeys(){
 	unset trimLegacyAptKey
 	
 }
+
+
+
+GetAptNewTrustedKeys(){
+	
+	newPtr ref_apt_target_key=$2
+	arrayMap $1 key index  '{
+		local target_key=${ref_apt_target_key[$index]}
+		local new_key=$(basename $target_key) 
+		Wget -qO- "$key" | gpg --dearmor > $new_key
+		install -D -o root -g root -m 644 $new_key $target_key
+		rm $new_key
+	}'
+
+}
+
 # Configure 3th party sources, using array of apt_keys, paths and mirrors
-# $1 is reference to array of APT keys
+# $1 is reference to array url APT keys
 # $2 is reference to array to apt sources.list paths,
 # $3 is reference to array mirros, 
+# $4 is reference to array of target APT keys
+ConfigureSourcesListDeb822(){
+	([ $# -lt 4 ] || isArrayEmpty $1 || isArrayEmpty $2 || isArrayEmpty $3  || isArrayEmpty $4 ) && returnFalse
 
-
-
-ConfigureSourcesList(){
-	
-	([ $# -lt 3 ] || isArrayEmpty $1 || isArrayEmpty $2 || isArrayEmpty $3) && returnFalse
-	
-	local signed_keys_index=()
-	local trusted_signed_mirrors=()
-	local trusted_signed_keys=()
-	local trusted_signed_repo_path=()
-	local legacy_mirrors=()
-	local legacy_keys=()
-	local legacy_repo_path=()
-
-	#internal function section
-	{
-		function SetSignedKeysIndex {
-
-			local signed_regex='(signed\-by=)'
-			arrayMap $1 repo index   '{
-				if [[ "$repo" =~ $signed_regex ]]; then
-					signed_keys_index[$index]=1
-				else 
-					signed_keys_index[$index]=0
-				fi
-			}'
-		}
-
-		function trimTargetKey {
-			local signed_regex='(signed\-by=)'
-			for param in ${key}; do
-				if [[ "$param" =~ $signed_regex ]]; then
-					trim_key="$(
-						echo "${param}" |sed 's/signed-by=//g;s/\[//g;s/\]//g')"
-					return
-				fi
-			done
-		}	
-
-		function setSignedKeysList {
-			local trim_key
-			arrayMap $1 key index '{
-				trimTargetKey
-				target_apt_keys[$index]="$trim_key"
-			}'
-		}
-
-		function isLegacyAptRepository {
-			local repo_status=${signed_keys_index[$index]}
-			[ "$repo_status"  = "0"  ]
-		}
-
-		function isNotLegacyAptRepository {
-			! isLegacyAptRepository 
-		}
-
-		function FilterNewSignatureAptArrays {
-			arrayFilter $1 key index trusted_signed_keys 'isNotLegacyAptRepository'
-			
-			arrayFilter $2 mirror index trusted_signed_mirrors 'isNotLegacyAptRepository'
-
-			arrayFilter $3 apt_list_file index trusted_signed_repo_path 'isNotLegacyAptRepository'
-		}	
-
-		function FilterLegacyAptArray {
-
-			arrayFilter $1 key index legacy_keys 'isLegacyAptRepository'
-		
-			arrayFilter $2 mirror index legacy_mirrors 'isLegacyAptRepository'
-
-			arrayFilter $3 apt_list_file index legacy_repo_path 'isLegacyAptRepository'
-
-		}
-
-		function getNewAptKeys {
-			if [ $# -lt 1 ] || [ "$1" = "" ] ; then return 1; fi
-
-			( ! isVariableArray $1 || isArrayEmpty target_apt_keys )&& returnFalse
-
-			
-			function getCurrentKey {
-
-				local target_key=${target_apt_keys[$index]}
-				local new_key="$(basename $target_key)"
-				Wget -qO- "$key" | gpg --dearmor > $new_key
-				install -D -o root -g root -m 644 $new_key $target_key
-				rm $new_key
-			}
-
-			echo "Getting new apt keys ..."
-			arrayMap $1 key index 'getCurrentKey'
-
-			unset getCurrentKey
-			unset isCurrentTargetKeyEmpty
-		}
-
-		function ConfigureSignedSourcesList {
-			
-			[ $# -lt 3 ] && returnFalse
-			local target_apt_keys=()
-			setSignedKeysList $2
-			getNewAptKeys $1
-			writeAptMirrors $2 $3
-		}
-	}
-
-	SetSignedKeysIndex $2
-	FilterLegacyAptArray $1 $2 $3
-	FilterNewSignatureAptArrays $1 $2 $3
-	CheckMinDeps
-	getAptKeys legacy_keys
-	writeAptMirrors legacy_mirrors legacy_repo_path
-	ConfigureSignedSourcesList trusted_signed_keys trusted_signed_mirrors trusted_signed_repo_path
-	
-	# unset internal functions in block
-	{
-		unset isLegacyAptRepository
-		unset isNotLegacyAptRepository
-		unset FilterLegacyAptArray
-		unset FilterNewSignatureAptArrays
-		unset ConfigureSignedSourcesList
-		unset SetSignedKeysIndex
-		unset trimLegacyAptKey
-		unset trimTargetKey
-		unset setSignedKeysList
-		unset getNewAptKeys
-	}
-
+	writeAptMirrors $2 $3
+	GetAptNewTrustedKeys $1 $4
 }
 
 
