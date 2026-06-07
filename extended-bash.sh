@@ -974,7 +974,7 @@ ConfigureSourcesListByScript(){
 	! isVariableArray $1 && returnFalse
 	
 	CheckMinDeps
-	arrayMap $1 script 'Wget -qO- "$script" | bash - '
+	arrayMap $1 script 'wget -qO- "$script" | bash - '
 	
 }
 
