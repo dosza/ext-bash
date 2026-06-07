@@ -1015,13 +1015,14 @@ getAptKeys(){
 
 
 
+
 GetAptNewTrustedKeys(){
 	
 	newPtr ref_apt_target_key=$2
 	arrayMap $1 key index  '{
 		local target_key=${ref_apt_target_key[$index]}
 		local new_key=$(basename $target_key) 
-		Wget -qO- "$key" | gpg --dearmor > $new_key
+		wget -qO- "$key" | gpg --dearmor > $new_key
 		install -D -o root -g root -m 644 $new_key $target_key
 		rm $new_key
 	}'
