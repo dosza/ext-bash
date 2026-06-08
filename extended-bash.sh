@@ -1043,6 +1043,35 @@ ConfigureSourcesListDeb822(){
 
 
 
+# auxiliar function to get target key path from apt key url, this is used to get the target key path for new APT signature method
+# $1 is the apt key url, this function return the target key path for new APT signature method
+getTargetKeyPath (){ 
+	echo "$1" | 
+	awk -F'Signed-by:' '{print $2}' | 
+	awk -F' ' '{print $1}' 	|
+	sed 's/\n//g'
+}
+
+
+# Configure 3th party sources, using array of apt_keys, paths and mirrors
+# $1 is reference to array url APT keys
+# $2 is reference to array to apt sources.list paths,
+# $3 is reference to array mirros, 
+# Note: this function requires deb822 format.
+ConfigureSourcesList(){
+	([ $# -lt 3 ] || isArrayEmpty $1 || isArrayEmpty $2 || isArrayEmpty $3 ) && returnFalse
+	
+	local apt_target_keys=()
+	
+	arrayMap $3 mirror index '{
+		local current_target_key="$(getTargetKeyPath "$mirror")"
+		apt_target_keys[$index]="$current_target_key"
+	}'
+
+	ConfigureSourcesListDeb822 $1 $2 $3 apt_target_keys
+}
+
+
 # Check if the minimum common-shell-lib dependencies are installed
 # If not, they are installed
 CheckMinDeps(){
