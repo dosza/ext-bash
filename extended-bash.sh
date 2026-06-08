@@ -1064,14 +1064,14 @@ getTargetKeyPath (){
 ConfigureSourcesList(){
 	([ $# -lt 3 ] || isArrayEmpty $1 || isArrayEmpty $2 || isArrayEmpty $3 ) && returnFalse
 	
-	local _apt_target_keys=()
+	local apt_target_keys=()
 	
 	arrayMap $3 mirror index '{
 		local current_target_key="$(getTargetKeyPath "$mirror")"
 		apt_target_keys[$index]="$current_target_key"
 	}'
 
-	ConfigureSourcesListDeb822 $1 $2 $3 _apt_target_keys
+	ConfigureSourcesListDeb822 $1 $2 $3 apt_target_keys
 }
 
 
