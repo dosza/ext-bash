@@ -943,9 +943,9 @@ AptInstall(){
 }
 
 # This function writes the files from third-party repositories, but does not add the keys,
-# Note: Recommended to use the ConfigureSourcesList function, for a complete configuration!
-# $1 is a reference to the sources.lists array path,
-# $2 is a reference to the mirror array (contents)
+# Note: Recommended to use the ConfigureSourcesList function, for a complete configuration!,
+# $1 is a reference to the mirror array (contents)
+# $2 is a reference to the sources.lists array path
 writeAptMirrors(){
 	if !( isVariableArray $1 && isVariableArray $2); then 
 		returnFalse
@@ -954,6 +954,8 @@ writeAptMirrors(){
 
 	newPtr ref_file_mirros=$2
 	
+
+
 	arrayMap $1 mirror index '{
 		local file_mirror=${ref_file_mirros[$index]}
 		local mirror_str=(
@@ -965,6 +967,7 @@ writeAptMirrors(){
 		WriterFileln $file_mirror mirror_str
 	}'
 }
+
 
 # Configure APT repositories through an array with script download url
 # $1 is a reference to the script array
@@ -1037,7 +1040,7 @@ GetAptNewTrustedKeys(){
 ConfigureSourcesListDeb822(){
 	([ $# -lt 4 ] || isArrayEmpty $1 || isArrayEmpty $2 || isArrayEmpty $3  || isArrayEmpty $4 ) && returnFalse
 
-	writeAptMirrors $2 $3
+	writeAptMirrors $3 $2
 	GetAptNewTrustedKeys $1 $4
 }
 
@@ -1061,14 +1064,14 @@ getTargetKeyPath (){
 ConfigureSourcesList(){
 	([ $# -lt 3 ] || isArrayEmpty $1 || isArrayEmpty $2 || isArrayEmpty $3 ) && returnFalse
 	
-	local apt_target_keys=()
+	local _apt_target_keys=()
 	
 	arrayMap $3 mirror index '{
 		local current_target_key="$(getTargetKeyPath "$mirror")"
 		apt_target_keys[$index]="$current_target_key"
 	}'
 
-	ConfigureSourcesListDeb822 $1 $2 $3 apt_target_keys
+	ConfigureSourcesListDeb822 $1 $2 $3 _apt_target_keys
 }
 
 
