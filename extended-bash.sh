@@ -1066,9 +1066,9 @@ ConfigureSourcesList(){
 	
 	local apt_target_keys=()
 	
-	arrayMap $3 mirror index '{
+	arrayMap $3 mirror '{
 		local current_target_key="$(getTargetKeyPath "$mirror")"
-		apt_target_keys[$index]="$current_target_key"
+		apt_target_keys+=("$current_target_key")
 	}'
 
 	ConfigureSourcesListDeb822 $1 $2 $3 apt_target_keys
