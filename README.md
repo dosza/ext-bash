@@ -100,11 +100,16 @@ This family call APT functions with -y and check erros param
 
 +	``` getDebPackVersion``` # returns a version of package  (.deb) installed
 +	``` ConfigureSourcesListByScript(scripts_url)``` configure sources from array of url scripts (apt)
-+	``` ConfigureSourcesList(mirrors,apt_keys,repositories)```, configure sources
-	+	ConfigureSourcesList now supports new APT repository signature
++	``` ConfigureSourcesList(apt_keys,repositories,mirrors)```, configure sources using deb822 entries
+	+	ConfigureSourcesList now expects repository entries in deb822 style and reads key target path from `Signed-by:`
 	sample:
-	```sources.list
-	deb [arch=amd64 signed-by=/usr/share/repo.gpg] https://deb.repo.com/debian main 
+	```deb822
+	Types: deb
+	URIs: https://deb.repo.com/debian
+	Suites: stable
+	Components: main
+	Architectures: amd64
+	Signed-by: /usr/share/keyrings/repo.gpg
 	```
 
 
@@ -193,26 +198,27 @@ five_times_table=({0..10})
 ```bash
 source ./extended-bash.sh
 
-#example: configure google chrome, sublime text and microsoft teams repository!
+# Example: configure repositories using deb822 entries
 repositories=(
-	"/etc/apt/sources.list.d/google-chrome.list"
-	"/etc/apt/sources.list.d/sublime-text.list"
-	"/etc/apt/sources.list.d/geogebra.list"
-	"/etc/apt/sources.list.d/teams.list")
+	"/etc/apt/sources.list.d/google-chrome.sources"
+	"/etc/apt/sources.list.d/sublime-text.sources"
+	"/etc/apt/sources.list.d/geogebra.sources"
+	"/etc/apt/sources.list.d/teams.sources")
 
 mirrors=(
-	'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
-	'deb https://download.sublimetext.com/ apt/stable/' 
-	'deb http://www.geogebra.net/linux/ stable main'   
-	"deb [arch=amd64] https://packages.microsoft.com/repos/ms-teams stable main")
+	$'Types: deb\nURIs: http://dl.google.com/linux/chrome/deb/\nSuites: stable\nComponents: main\nArchitectures: amd64\nSigned-by: /usr/share/keyrings/google-chrome.gpg'
+	$'Types: deb\nURIs: https://download.sublimetext.com/\nSuites: apt/stable/\nComponents: \nSigned-by: /usr/share/keyrings/sublimehq.gpg'
+	$'Types: deb\nURIs: http://www.geogebra.net/linux/\nSuites: stable\nComponents: main\nSigned-by: /usr/share/keyrings/geogebra.gpg'
+	$'Types: deb\nURIs: https://packages.microsoft.com/repos/ms-teams\nSuites: stable\nComponents: main\nArchitectures: amd64\nSigned-by: /usr/share/keyrings/ms-teams.gpg')
 
 apt_key_url_repositories=(
 	"https://dl-ssl.google.com/linux/linux_signing_key.pub"
+	"https://download.sublimetext.com/sublimehq-pub.gpg"
 	"https://static.geogebra.org/linux/office@geogebra.org.gpg.key"
 	"https://packages.microsoft.com/keys/microsoft.asc")
 
 # Note: requires admin
-ConfigureSourcesList apt_key_url_repositories mirrors repositories
+ConfigureSourcesList apt_key_url_repositories repositories mirrors
 ```
 
 ### sample: setting repository by url script download
