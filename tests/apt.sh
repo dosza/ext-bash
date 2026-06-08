@@ -134,19 +134,20 @@ testConfigureSourcesList(){
     install(){ :; }
     tee(){ :; }
     gpg(){ echo $@; }
+    wget(){ echo "OK"; }
 
     local repositories=(
-        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/google-chrome.list"
-        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/sublime-text.list"
-        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/geogebra.list"
-        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/virtualbox.list"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/google-chrome.sources"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/sublime-text.sources"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/geogebra.sources"
+        "$FAKE_ROOT_TEST_DIR/apt/sources.list.d/virtualbox.sources"
         )
 
     local mirrors=(
-        'deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main' 
-        'deb https://download.sublimetext.com/ apt/stable/' 
-        'deb http://www.geogebra.net/linux/ stable main'
-        "deb [arch=amd64] https://download.virtualbox.org/virtualbox/debian ${dist_version} contrib"    
+        "Types: deb\nURIs: http://dl.google.com/linux/chrome/deb/\nSuites: stable\nComponents: main\nArchitectures: amd64\nSigned-by: $FAKE_ROOT_TEST_DIR/usr/share/keyrings/google-chrome.gpg"
+        "Types: deb\nURIs: https://download.sublimetext.com/\nSuites: apt/stable/\nComponents: \nSigned-by: $FAKE_ROOT_TEST_DIR/usr/share/keyrings/sublimehq.gpg"
+        "Types: deb\nURIs: http://www.geogebra.net/linux/\nSuites: stable\nComponents: main\nSigned-by: $FAKE_ROOT_TEST_DIR/usr/share/keyrings/geogebra.gpg"
+        "Types: deb\nURIs: https://download.virtualbox.org/virtualbox/debian\nSuites: jammy\nComponents: contrib\nArchitectures: amd64\nSigned-by: $FAKE_ROOT_TEST_DIR/usr/share/keyrings/virtualbox.gpg"
     )
 
     local apt_key_url_repository=(
@@ -156,19 +157,19 @@ testConfigureSourcesList(){
         "https://www.virtualbox.org/download/oracle_vbox.asc"
     )
 
-    ConfigureSourcesList apt_key_url_repository mirrors repositories
-    assertTrue "[Configuring Apt legacy mirror with success]" $?
+    ConfigureSourcesList apt_key_url_repository repositories mirrors
+    assertTrue "[Configuring Apt deb822 mirror with success]" $?
     ConfigureSourcesList
-    assertFalse "[Configuring Apt legacy mirror, but missing args]" $?
+    assertFalse "[Configuring Apt deb822 mirror, but missing args]" $?
 
     mirrors+=(
-        "deb [arch=amd64 signed-by=$FAKE_ROOT_TEST_DIR/etc/apt/keyrings/packages.microsoft.gpg]  https://packages.microsoft.com/repos/code stable main"
-        "deb [signed-by=$FAKE_ROOT_TEST_DIR/usr/share/keyrings/meganz-archive-keyring.gpg] https://mega.nz/linux/repo/xUbuntu_22.04/ ./"
+        "Types: deb\nURIs: https://packages.microsoft.com/repos/code\nSuites: stable\nComponents: main\nArchitectures: amd64\nSigned-by: $FAKE_ROOT_TEST_DIR/etc/apt/keyrings/packages.microsoft.gpg"
+        "Types: deb\nURIs: https://mega.nz/linux/repo/xUbuntu_22.04/\nSuites: ./\nComponents: \nSigned-by: $FAKE_ROOT_TEST_DIR/usr/share/keyrings/meganz-archive-keyring.gpg"
     )
     
     repositories+=(
-        $FAKE_ROOT_TEST_DIR/apt/sources.list.d/vscode.list
-        $FAKE_ROOT_TEST_DIR/apt/sources.list.d/megasync.list
+        $FAKE_ROOT_TEST_DIR/apt/sources.list.d/vscode.sources
+        $FAKE_ROOT_TEST_DIR/apt/sources.list.d/megasync.sources
     )
 
     apt_key_url_repository+=(
@@ -176,18 +177,22 @@ testConfigureSourcesList(){
         'https://mega.nz/linux/repo/xUbuntu_22.04/Release.key'
     )
 
-    ConfigureSourcesList apt_key_url_repository mirrors repositories
+    ConfigureSourcesList apt_key_url_repository repositories mirrors
 
     local existent_repositories=()
     arrayFilter repositories repository existent_repositories '[ -e "$repository" ]'
     assertEquals "[Configuring New Apt mirror with success]" "${#repositories[@]}" "${#existent_repositories[@]}"
 
+
+    wget(){
+        return $BASH_FALSE
+    }
     ConfigureSourcesList
     assertFalse "[Configuring New APTmirror, but missing args]" $?
 
-    local mirrors=(   
-        "deb [arch=amd64 signed-by=$FAKE_ROOT_TEST_DIR/etc/apt/keyrings/packages.microsoft.gpg]  https://packages.microsoft.com/repos/code stable main"
-        "deb [signed-by=$FAKE_ROOT_TEST_DIR/usr/share/keyrings/meganz-archive-keyring.gpg] https://mega.nz/linux/repo/xUbuntu_22.04/ ./"
+    local mirrors=(
+        "Types: deb\nURIs: https://packages.microsoft.com/repos/code\nSuites: stable\nComponents: main\nArchitectures: amd64\nSigned-by: $FAKE_ROOT_TEST_DIR/etc/apt/keyrings/packages.microsoft.gpg"
+        "Types: deb\nURIs: https://mega.nz/linux/repo/xUbuntu_22.04/\nSuites: ./\nComponents: \nSigned-by: $FAKE_ROOT_TEST_DIR/usr/share/keyrings/meganz-archive-keyring.gpg"
     )
 
     local apt_key_url_repository=(
@@ -195,19 +200,19 @@ testConfigureSourcesList(){
         'https://mega.nz/linux/repo/xUbuntu_22.04/Release.key'
     )
 
-    local repo_path=(
-        $FAKE_ROOT_TEST_DIR/apt/sources.list.d/vscode.list
-        $FAKE_ROOT_TEST_DIR/apt/sources.list.d/megasync.list
+    local repositories=(
+        $FAKE_ROOT_TEST_DIR/apt/sources.list.d/vscode.sources
+        $FAKE_ROOT_TEST_DIR/apt/sources.list.d/megasync.sources
     )
 
-    ConfigureSourcesList apt_key_url_repository mirrors repositories
+    ConfigureSourcesList apt_key_url_repository repositories mirrors
     assertTrue "[Configuring  only New Apt mirror with success]" $?
 
     ConfigureSourcesList
     assertFalse "[Configuring only New APTmirror, but missing args]" $?
 
     mirrors=()
-    ConfigureSourcesList apt_key_url_repository mirrors repositories
+    ConfigureSourcesList apt_key_url_repository repositories mirrors
     assertFalse '[Passing an empty array]' $?
 }
 
@@ -220,9 +225,12 @@ testConfigureSourcesListByScript(){
     )
     local expected_message="OK\nOK\nOK\nOK\n"
     local fake_array_url=''
-    Wget(){
+    wget(){
         echo 'echo OK'
     }
+
+    gpg(){ :; }
+    tee(){ :; } 
 
     assertEquals "[Configuring repositories using a script obtained from urls specified in an array]"\
         "$(printf "%b" "$expected_message")" "$(ConfigureSourcesListByScript scripts_url)"
